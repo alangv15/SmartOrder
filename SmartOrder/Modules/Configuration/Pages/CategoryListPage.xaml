@@ -1,0 +1,119 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Configuration.Pages.CategoryListPage"
+             Title="Categorias"
+             BackgroundColor="#F4F7FB">
+
+    <Grid RowDefinitions="Auto,*"
+          Padding="18,14,18,18"
+          RowSpacing="0">
+
+        <Frame Grid.Row="0"
+               BackgroundColor="#12344D"
+               BorderColor="#12344D"
+               CornerRadius="18"
+               Padding="14"
+               HasShadow="True"
+               Margin="0,0,0,12">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Administracion de categorias"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Ordena y controla las categorias usadas por productos, ventas y pedidos"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+
+                <Button Grid.Column="1"
+                        Text="Nueva categoria"
+                        Clicked="OnAddClicked"
+                        BackgroundColor="#0B6E4F"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Frame>
+
+        <CollectionView x:Name="CategoryList"
+                        Grid.Row="1"
+                        SelectionMode="Single"
+                        SelectionChanged="OnItemSelected">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="40"
+                                     Spacing="8"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center">
+                    <Label Text="No hay categorias registradas"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43"
+                           HorizontalOptions="Center" />
+                    <Label Text="Agrega categorias para organizar tu catalogo de productos."
+                           FontSize="14"
+                           TextColor="#627D98"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BackgroundColor="White"
+                           BorderColor="#D9E2EC"
+                           CornerRadius="18"
+                           Padding="16"
+                           HasShadow="True"
+                           Margin="0,0,0,12">
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="3">
+                                <Label Text="{Binding Name}"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="#102A43" />
+                                <Label Text="{Binding DescriptionSummary}"
+                                       FontSize="13"
+                                       TextColor="#486581" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8" HorizontalOptions="End">
+                                <Border Padding="10,6"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding IsActive, Converter={StaticResource BoolToColorConverter}}"
+                                        StrokeShape="RoundRectangle 14">
+                                    <Label Text="{Binding IsActive, Converter={StaticResource BoolToStatusConverter}}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                </Border>
+
+                                <Border Padding="10,6"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding DirectSaleBackgroundColor}"
+                                        StrokeShape="RoundRectangle 14">
+                                    <Label Text="{Binding DirectSaleLabel}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Row="1"
+                                  Grid.ColumnSpan="2"
+                                  ColumnDefinitions="*,Auto"
+                                  Margin="0,12,0,0">
+                                <Label Text="{Binding DisplayOrder, StringFormat='Orden: {0}'}"
+                                       FontSize="12"
+                                       TextColor="#829AB1" />
+                            </Grid>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

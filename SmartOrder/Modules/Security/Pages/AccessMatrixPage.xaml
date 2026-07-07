@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Security.Pages.AccessMatrixPage"
+             x:Name="AccessPage"
+             Title="Accesos"
+             BackgroundColor="#F4F7FB">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,14,18,18"
+                             Spacing="0">
+            <Frame BackgroundColor="#12344D"
+                   BorderColor="#12344D"
+                   CornerRadius="18"
+                   Padding="14"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Matriz de acceso"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Selecciona un rol y decide exactamente a que puede entrar"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Rol"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Picker x:Name="RolePicker"
+                                Title="Selecciona un rol"
+                                SelectedIndexChanged="OnRoleChanged"
+                                ItemDisplayBinding="{Binding Name}"
+                                Style="{StaticResource PickerControlStyle}" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="Actualizar"
+                            Clicked="OnRefreshClicked"
+                            BackgroundColor="#D9EAF7"
+                            TextColor="#12344D"
+                            CornerRadius="14"
+                            HeightRequest="50"
+                            FontAttributes="Bold"
+                            VerticalOptions="End" />
+                </Grid>
+            </Frame>
+
+            <VerticalStackLayout x:Name="GroupsHost"
+                                 BindableLayout.ItemsSource="{Binding PermissionGroups, Source={x:Reference AccessPage}}"
+                                 Spacing="0">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="White"
+                               BorderColor="#D9E2EC"
+                               CornerRadius="18"
+                               Padding="16"
+                               HasShadow="True"
+                               Margin="0,0,0,12">
+                            <VerticalStackLayout Spacing="12">
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label Text="{Binding ModuleLabel}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#102A43" />
+                                    <Border Padding="10,4"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{Binding AccentColor}"
+                                            StrokeShape="RoundRectangle 14">
+                                        <Label Text="{Binding PermissionCount, StringFormat='{0} permisos'}"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
+                                </HorizontalStackLayout>
+
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Permissions}"
+                                                     Spacing="10">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="*,Auto"
+                                                  ColumnSpacing="12">
+                                                <VerticalStackLayout Spacing="2">
+                                                    <Label Text="{Binding Name}"
+                                                           FontSize="15"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#102A43" />
+                                                    <Label Text="{Binding Description}"
+                                                           FontSize="12"
+                                                           TextColor="#627D98" />
+                                                </VerticalStackLayout>
+
+                                                <Switch Grid.Column="1"
+                                                        IsToggled="{Binding IsAssigned}"
+                                                        VerticalOptions="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="18"
+                   HasShadow="True"
+                   IsVisible="{Binding IsEmptyStateVisible, Source={x:Reference AccessPage}}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Selecciona un rol para ver sus accesos"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43"
+                           HorizontalOptions="Center" />
+                    <Label Text="Aqui podras activar o quitar permisos por modulo y guardar los cambios del rol."
+                           FontSize="14"
+                           TextColor="#627D98"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Guardar accesos"
+                    Clicked="OnSaveClicked"
+                    BackgroundColor="#6B2F54"
+                    TextColor="White"
+                    CornerRadius="14"
+                    HeightRequest="52"
+                    FontAttributes="Bold"
+                    Margin="0,0,0,12" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

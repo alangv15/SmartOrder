@@ -1,0 +1,436 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Sales.Pages.SaleFormPage"
+             Title="Registrar Venta"
+             BackgroundColor="#F4F7FB">
+
+    <ContentPage.Resources>
+        <Style x:Key="CardFrameStyle" TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="BorderColor" Value="#D9E2EC" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="HasShadow" Value="True" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="SectionTitleStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#102A43" />
+        </Style>
+
+        <Style x:Key="SectionCaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="#627D98" />
+        </Style>
+
+        <Style x:Key="MetricValueStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#0B6E4F" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="HeightRequest" Value="52" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+
+        <Style x:Key="GhostButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#E6EEF8" />
+            <Setter Property="TextColor" Value="#0F4C81" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#B42318" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="HeightRequest" Value="52" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+
+        <Style x:Key="HeaderIconButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#164A68" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="WidthRequest" Value="48" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style x:Key="PickerHintStyle" TargetType="Picker" BasedOn="{StaticResource PickerControlStyle}">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="TextColor" Value="#102A43" />
+            <Setter Property="TitleColor" Value="#D9E2EC" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,2*,*,Auto,Auto"
+          Padding="18,14,18,18"
+          RowSpacing="0">
+
+        <Frame Grid.Row="3"
+               Style="{StaticResource CardFrameStyle}"
+               BackgroundColor="White"
+               BorderColor="#D9E2EC"
+               Padding="14">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="14">
+                <Grid Grid.Column="0"
+                      ColumnDefinitions="*,*,*,*"
+                      ColumnSpacing="8"
+                      VerticalOptions="Center">
+                    <Frame Grid.Column="0" BackgroundColor="#EAF2FB" BorderColor="#D9E2EC" CornerRadius="14" Padding="8" HasShadow="False" Margin="0">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Productos" FontSize="11" TextColor="#627D98" HorizontalOptions="Center" />
+                            <Label Text="{Binding TotalProductQuantity}" Style="{StaticResource MetricValueStyle}" TextColor="#0F4C81" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="1" BackgroundColor="#EAF2FB" BorderColor="#D9E2EC" CornerRadius="14" Padding="8" HasShadow="False" Margin="0">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Subtotal" FontSize="11" TextColor="#627D98" HorizontalOptions="Center" />
+                            <Label Text="{Binding Subtotal, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" TextColor="#0F4C81" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="2" BackgroundColor="#FFF4D6" BorderColor="#F7D794" CornerRadius="14" Padding="8" HasShadow="False" Margin="0">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Descuento" FontSize="11" TextColor="#7C5E10" HorizontalOptions="Center" />
+                            <Label Text="{Binding DiscountAmount, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" TextColor="#6C4C1D" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="3" BackgroundColor="#E8F5EF" BorderColor="#B7DBC9" CornerRadius="14" Padding="8" HasShadow="False" Margin="0">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Total" FontSize="11" TextColor="#0B6E4F" HorizontalOptions="Center" />
+                            <Label Text="{Binding Total, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" TextColor="#0B6E4F" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <Button Grid.Column="1"
+                        Text="&#x270E;"
+                        Command="{Binding LoadSaleForEditCommand}"
+                        Style="{StaticResource HeaderIconButtonStyle}"
+                        BackgroundColor="#E6EEF8"
+                        TextColor="#0F4C81"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Frame>
+
+        <Frame Grid.Row="0"
+               Style="{StaticResource CardFrameStyle}"
+               BackgroundColor="#12344D"
+               BorderColor="#12344D">
+            <VerticalStackLayout Spacing="12">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+                    <Label Grid.Column="0"
+                           Text="{Binding SaleHeaderTitle}"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Grid.Column="1"
+                           Text="{Binding SaleDate, StringFormat='Fecha y hora: {0:dd/MM/yyyy HH:mm}'}"
+                           FontSize="12"
+                           TextColor="#D9E2EC"
+                           VerticalOptions="Center" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*,Auto" ColumnSpacing="12">
+                    <Picker Grid.Column="0"
+                            Title="Selecciona una categoria"
+                            ItemsSource="{Binding Categories}"
+                            ItemDisplayBinding="{Binding Name}"
+                            SelectedItem="{Binding SelectedCategory}"
+                            HorizontalOptions="Fill"
+                            Style="{StaticResource PickerHintStyle}" />
+
+                    <Picker Grid.Column="1"
+                            Title="Selecciona un producto"
+                            ItemsSource="{Binding FilteredProducts}"
+                            ItemDisplayBinding="{Binding Name}"
+                            SelectedItem="{Binding SelectedProduct}"
+                            HorizontalOptions="Fill"
+                            Style="{StaticResource PickerHintStyle}" />
+
+                    <SearchBar Grid.Column="2"
+                               Placeholder="Buscar producto"
+                               Text="{Binding ProductSearchText}"
+                               SearchCommand="{Binding SearchProductCommand}"
+                               VerticalOptions="End" />
+
+                    <Button Grid.Column="3"
+                            Text="Agregar"
+                            WidthRequest="120"
+                            Command="{Binding AddProductCommand}"
+                            IsEnabled="{Binding CanAddProduct}"
+                            Style="{StaticResource GhostButtonStyle}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Frame>
+
+        <Frame Grid.Row="1"
+               Style="{StaticResource CardFrameStyle}"
+               Padding="0"
+               Margin="0,0,0,12"
+               MinimumHeightRequest="150"
+               VerticalOptions="FillAndExpand">
+            <Grid RowDefinitions="Auto,*"
+                  RowSpacing="0">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="1.2*,1.8*,0.7*,0.8*,0.95*,0.95*,0.95*,1.1*"
+                      BackgroundColor="#EAF1F8"
+                      Padding="16,10"
+                      Margin="16,16,16,8">
+                    <Label Text="Categoria" Grid.Column="0" FontAttributes="Bold" TextColor="#243B53" />
+                    <Label Text="Producto" Grid.Column="1" FontAttributes="Bold" TextColor="#243B53" />
+                    <Label Text="Cant." Grid.Column="2" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Precio" Grid.Column="3" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Subtotal" Grid.Column="4" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Descuento" Grid.Column="5" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Total" Grid.Column="6" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Acciones" Grid.Column="7" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                </Grid>
+
+                <CollectionView Grid.Row="1"
+                                ItemsSource="{Binding SaleItems}"
+                                IsVisible="{Binding HasSaleItems}"
+                                VerticalOptions="Fill"
+                                MinimumHeightRequest="90"
+                                SelectionMode="None"
+                                Margin="0,0,0,8">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="1.2*,1.8*,0.7*,0.8*,0.95*,0.95*,0.95*,1.1*"
+                                  Padding="16,10"
+                                  Margin="16,0,16,8"
+                                  BackgroundColor="#FBFCFE">
+                                <Label Text="{Binding CategoryName}" Grid.Column="0" VerticalOptions="Center" TextColor="#486581" />
+
+                                <Label Text="{Binding ProductName}" Grid.Column="1" VerticalOptions="Center" TextColor="#102A43" />
+
+                                <Entry Grid.Column="2"
+                                       Text="{Binding Quantity}"
+                                       Keyboard="Numeric"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center"
+                                       BackgroundColor="White"
+                                       Margin="4,0" />
+
+                                <Label Text="{Binding Price, StringFormat='${0:F2}'}"
+                                       Grid.Column="3"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       TextColor="#486581" />
+
+                                <Label Text="{Binding Subtotal, StringFormat='${0:F2}'}"
+                                       Grid.Column="4"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F" />
+
+                                <Label Text="{Binding DiscountAmount, StringFormat='${0:F2}'}"
+                                       Grid.Column="5"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       FontAttributes="Bold"
+                                       TextColor="#B7791F" />
+
+                                <Label Text="{Binding Total, StringFormat='${0:F2}'}"
+                                       Grid.Column="6"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       FontAttributes="Bold"
+                                       TextColor="#0F4C81" />
+
+                                <HorizontalStackLayout Grid.Column="7"
+                                                       HorizontalOptions="Center"
+                                                       Spacing="6">
+                                    <Button Text="-"
+                                            WidthRequest="36"
+                                            HeightRequest="36"
+                                            Command="{Binding DecreaseCommand}"
+                                            BackgroundColor="#D9E2EC"
+                                            TextColor="#102A43"
+                                            CornerRadius="10"
+                                            FontAttributes="Bold" />
+                                    <Button Text="+"
+                                            WidthRequest="36"
+                                            HeightRequest="36"
+                                            Command="{Binding IncreaseCommand}"
+                                            BackgroundColor="#D9E2EC"
+                                            TextColor="#102A43"
+                                            CornerRadius="10"
+                                            FontAttributes="Bold" />
+                                    <Button Text="X"
+                                            WidthRequest="36"
+                                            HeightRequest="36"
+                                            Command="{Binding RemoveCommand}"
+                                            BackgroundColor="#FDE8E8"
+                                            TextColor="#B42318"
+                                            CornerRadius="10"
+                                            FontAttributes="Bold" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <VerticalStackLayout Grid.Row="1"
+                                     IsVisible="{Binding IsSaleItemsEmpty}"
+                                     Padding="30"
+                                     Spacing="8"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="CenterAndExpand">
+                    <Label Text="Tu carrito esta vacio"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="#102A43" />
+                    <Label Text="Agrega productos desde la parte superior para empezar la venta."
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="#627D98" />
+                </VerticalStackLayout>
+            </Grid>
+        </Frame>
+
+        <ScrollView Grid.Row="2"
+                    VerticalOptions="FillAndExpand">
+            <Frame Style="{StaticResource CardFrameStyle}" Margin="0">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Cobro y cierre" Style="{StaticResource SectionTitleStyle}" />
+
+                    <Grid ColumnDefinitions="1.05*,1.05*,1.05*,1.05*,1.15*,1.2*" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="Genero" Style="{StaticResource SectionCaptionStyle}" />
+                            <Picker Title="Selecciona genero"
+                                    ItemsSource="{Binding CustomerGenderOptions}"
+                                    ItemDisplayBinding="{Binding Label}"
+                                    SelectedItem="{Binding SelectedCustomerGender}"
+                                    HorizontalOptions="Fill"
+                                    Style="{StaticResource PickerControlStyle}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Rango de edad" Style="{StaticResource SectionCaptionStyle}" />
+                            <Picker Title="Selecciona rango"
+                                    ItemsSource="{Binding CustomerAgeRangeOptions}"
+                                    ItemDisplayBinding="{Binding Label}"
+                                    SelectedItem="{Binding SelectedCustomerAgeRange}"
+                                    HorizontalOptions="Fill"
+                                    Style="{StaticResource PickerControlStyle}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" Spacing="6">
+                            <Label Text="Tipo de cliente" Style="{StaticResource SectionCaptionStyle}" />
+                            <Picker Title="Selecciona tipo"
+                                    ItemsSource="{Binding CustomerTypeOptions}"
+                                    ItemDisplayBinding="{Binding Label}"
+                                    SelectedItem="{Binding SelectedCustomerType}"
+                                    HorizontalOptions="Fill"
+                                    Style="{StaticResource PickerControlStyle}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="3" Spacing="6">
+                            <Label Text="Como nos encontro" Style="{StaticResource SectionCaptionStyle}" />
+                            <Picker Title="Selecciona un canal"
+                                    ItemsSource="{Binding AcquisitionChannelOptions}"
+                                    ItemDisplayBinding="{Binding Label}"
+                                    SelectedItem="{Binding SelectedAcquisitionChannel}"
+                                    IsEnabled="{Binding IsAcquisitionChannelEnabled}"
+                                    HorizontalOptions="Fill"
+                                    Style="{StaticResource PickerControlStyle}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="4" Spacing="6">
+                            <Label Text="Metodo de pago" Style="{StaticResource SectionCaptionStyle}" />
+                            <Frame BorderColor="#D9E2EC" CornerRadius="14" Padding="4,2" HasShadow="False">
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          ColumnSpacing="6"
+                                          VerticalOptions="Center">
+                                        <Label Grid.Column="0"
+                                               Text="Efectivo"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                        <RadioButton Grid.Column="1"
+                                                     GroupName="PaymentMethod"
+                                                     IsChecked="{Binding IsCashPayment}"
+                                                     HorizontalOptions="Start"
+                                                     VerticalOptions="Center" />
+                                    </Grid>
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          ColumnSpacing="6"
+                                          VerticalOptions="Center">
+                                        <Label Grid.Column="0"
+                                               Text="Tarjeta"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                        <RadioButton Grid.Column="1"
+                                                     GroupName="PaymentMethod"
+                                                     IsChecked="{Binding IsCardPayment}"
+                                                     HorizontalOptions="Start"
+                                                     VerticalOptions="Center" />
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="5" Spacing="6">
+                            <Label Text="Descuento" Style="{StaticResource SectionCaptionStyle}" />
+                            <Button Text="{Binding DiscountSelectionSummary}"
+                                    Command="{Binding SelectDiscountsCommand}"
+                                    HorizontalOptions="Fill"
+                                    BackgroundColor="#F8FBFF"
+                                    BorderColor="#8FB8A8"
+                                    BorderWidth="1"
+                                    TextColor="#102A43"
+                                    CornerRadius="12"
+                                    HeightRequest="52"
+                                    FontSize="13" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Frame>
+        </ScrollView>
+
+        <Grid Grid.Row="4"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="12">
+            <Button Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Text="{Binding SaveButtonText}"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsNotSaving}"
+                    Style="{StaticResource PrimaryButtonStyle}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                                 Binding="{Binding IsEditingSale}"
+                                 Value="True">
+                        <Setter Property="Grid.ColumnSpan" Value="1" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <Button Grid.Column="1"
+                    Text="Cancelar cambios"
+                    Command="{Binding CancelEditCommand}"
+                    IsVisible="{Binding ShowCancelEditButton}"
+                    IsEnabled="{Binding CanCancelEdit}"
+                    Style="{StaticResource DangerButtonStyle}" />
+        </Grid>
+
+    </Grid>
+</ContentPage>
+

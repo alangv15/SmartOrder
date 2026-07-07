@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Security.Pages.LoginPage"
+             Title="Iniciar sesión"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F4F7FB">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#12344D" Offset="0.0" />
+                <GradientStop Color="#1B587C" Offset="0.48" />
+                <GradientStop Color="#0B6E4F" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid RowDefinitions="*,Auto,*"
+              Padding="28">
+            <Border Grid.Row="1"
+                    MaximumWidthRequest="520"
+                    HorizontalOptions="Center"
+                    BackgroundColor="#F8FBFF"
+                    Stroke="#D9E2EC"
+                    StrokeThickness="1"
+                    Padding="34"
+                    StrokeShape="RoundRectangle 30">
+                <Border.Shadow>
+                    <Shadow Brush="#000000"
+                            Opacity="0.18"
+                            Radius="24"
+                            Offset="0,12" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="20">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="SmartOrder"
+                               FontSize="34"
+                               FontAttributes="Bold"
+                               TextColor="#12344D" />
+                        <Label Text="Punto de venta · V1.0.0"
+                               FontSize="14"
+                               TextColor="#627D98" />
+                    </VerticalStackLayout>
+
+                    <Border BackgroundColor="#EAF2FB"
+                            StrokeThickness="0"
+                            Padding="16,12"
+                            StrokeShape="RoundRectangle 18">
+                        <Label Text="Ingresa tus credenciales para continuar."
+                               FontSize="14"
+                               TextColor="#255E7A" />
+                    </Border>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Usuario"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#486581" />
+                        <Border BackgroundColor="White"
+                                Stroke="#BCCCDC"
+                                StrokeThickness="1"
+                                Padding="14,0"
+                                StrokeShape="RoundRectangle 16">
+                            <Entry x:Name="EmailEntry"
+                                   Placeholder="admin.test"
+                                   PlaceholderColor="#9FB3C8"
+                                   Keyboard="Email"
+                                   ReturnType="Next"
+                                   Completed="OnEmailCompleted"
+                                   TextColor="#102A43"
+                                   BackgroundColor="Transparent"
+                                   HeightRequest="46" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Contraseña"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#486581" />
+                        <Border BackgroundColor="White"
+                                Stroke="#BCCCDC"
+                                StrokeThickness="1"
+                                Padding="14,0"
+                                StrokeShape="RoundRectangle 16">
+                            <Entry x:Name="PasswordEntry"
+                                   Placeholder="Contraseña"
+                                   PlaceholderColor="#9FB3C8"
+                                   IsPassword="True"
+                                   ReturnType="Go"
+                                   Completed="OnPasswordCompleted"
+                                   TextColor="#102A43"
+                                   BackgroundColor="Transparent"
+                                   HeightRequest="46" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Button x:Name="LoginButton"
+                            Text="Ingresar"
+                            Clicked="OnLoginClicked"
+                            HeightRequest="52"
+                            CornerRadius="18"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="#0B6E4F" />
+
+                    <Border x:Name="ErrorContainer"
+                            IsVisible="False"
+                            BackgroundColor="#FDE2E2"
+                            Stroke="#E53E3E"
+                            StrokeThickness="1"
+                            Padding="14,12"
+                            StrokeShape="RoundRectangle 16">
+                        <Label x:Name="ErrorLabel"
+                               TextColor="#9B1C1C"
+                               FontSize="14"
+                               FontAttributes="Bold" />
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

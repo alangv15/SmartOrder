@@ -1,0 +1,196 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Configuration.Pages.ProductListPage"
+             Title="Productos"
+             BackgroundColor="#F4F7FB">
+
+    <Grid RowDefinitions="Auto,Auto,*"
+          Padding="18,14,18,18"
+          RowSpacing="0">
+
+        <Frame Grid.Row="0"
+               BackgroundColor="#12344D"
+               BorderColor="#12344D"
+               CornerRadius="18"
+               Padding="14"
+               HasShadow="True"
+               Margin="0,0,0,12">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Administracion de productos"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Gestiona catalogo, precios y productos disponibles en mostrador"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+
+                <Button Grid.Column="1"
+                        Text="Nuevo producto"
+                        Clicked="OnAddClicked"
+                        BackgroundColor="#0B6E4F"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Frame>
+
+        <Frame Grid.Row="1"
+               BackgroundColor="White"
+               BorderColor="#D9E2EC"
+               CornerRadius="18"
+               Padding="14"
+               HasShadow="True"
+               Margin="0,0,0,12">
+            <VerticalStackLayout Spacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Filtrar productos"
+                           FontSize="17"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <Label Text="La categoria siempre queda seleccionada. Mostrador y Activo son filtros opcionales."
+                           FontSize="12"
+                           TextColor="#627D98" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Categoria"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           TextColor="#486581" />
+
+                    <ScrollView Orientation="Horizontal"
+                                HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout x:Name="CategoryFilterContainer"
+                                               Spacing="10" />
+                    </ScrollView>
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12">
+                    <VerticalStackLayout Grid.Column="0"
+                                         Spacing="6">
+                        <Label Text="Mostrador"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#102A43" />
+                        <Picker x:Name="DirectSaleFilterPicker"
+                                SelectedIndexChanged="OnDirectSaleFilterChanged" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1"
+                                         Spacing="6">
+                        <Label Text="Activo"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#102A43" />
+                        <Picker x:Name="ActiveFilterPicker"
+                                SelectedIndexChanged="OnActiveFilterChanged" />
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+        </Frame>
+
+        <CollectionView x:Name="ProductList"
+                        Grid.Row="2"
+                        SelectionMode="Single"
+                        SelectionChanged="OnItemSelected">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="40"
+                                     Spacing="8"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center">
+                    <Label Text="No hay productos registrados"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43"
+                           HorizontalOptions="Center" />
+                    <Label Text="Agrega productos para poder venderlos o usarlos en pedidos."
+                           FontSize="14"
+                           TextColor="#627D98"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BackgroundColor="White"
+                           BorderColor="#D9E2EC"
+                           CornerRadius="18"
+                           Padding="16"
+                           HasShadow="True"
+                           Margin="0,0,0,12">
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Row="0"
+                                                 Grid.Column="0"
+                                                 Spacing="3">
+                                <Label Text="{Binding Name}"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="#102A43" />
+                                <Label Text="{Binding ProductSummary}"
+                                       FontSize="13"
+                                       TextColor="#486581" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="0"
+                                                 Grid.Column="1"
+                                                 Spacing="8"
+                                                 HorizontalOptions="End">
+                                <Border Padding="10,6"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding IsActive, Converter={StaticResource BoolToColorConverter}}"
+                                        StrokeShape="RoundRectangle 14">
+                                    <Label Text="{Binding IsActive, Converter={StaticResource BoolToStatusConverter}}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                </Border>
+
+                                <Border Padding="10,6"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding DirectSaleBackgroundColor}"
+                                        StrokeShape="RoundRectangle 14">
+                                    <Label Text="{Binding DirectSaleLabel}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Row="1"
+                                  Grid.ColumnSpan="2"
+                                  ColumnDefinitions="*,Auto"
+                                  Margin="0,12,0,0"
+                                  ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0"
+                                                     Spacing="3">
+                                    <Label Text="{Binding Description}"
+                                           FontSize="13"
+                                           TextColor="#627D98" />
+                                    <Label Text="{Binding UpdatedSummary}"
+                                           FontSize="12"
+                                           TextColor="#829AB1" />
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="1"
+                                       Text="{Binding SalePrice, StringFormat='${0:F2}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F"
+                                       VerticalOptions="End"
+                                       HorizontalOptions="End" />
+                            </Grid>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

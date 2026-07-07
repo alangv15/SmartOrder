@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:SmartOrder"
+    xmlns:converters="clr-namespace:SmartOrder.Converters"
+             x:Class="SmartOrder.App">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <local:BoolToStatusConverter x:Key="BoolToStatusConverter" />
+            <local:BoolToColorConverter x:Key="BoolToColorConverter" />
+
+            <Style x:Key="PickerControlStyle" TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="#F8FBFF" />
+                <Setter Property="TextColor" Value="#102A43" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="MinimumHeightRequest" Value="60" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

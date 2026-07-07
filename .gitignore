@@ -1,0 +1,31 @@
+## Visual Studio / .NET
+.vs/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+publish/
+AppPackages/
+BundleArtifacts/
+*.user
+*.suo
+*.rsuser
+*.log
+*.binlog
+*.tmp
+*.pdb
+*.ilk
+*.nupkg
+*.snupkg
+
+## Local configuration
+appsettings.json
+appsettings.*.json
+!appsettings.example.json
+
+## OS/editor
+.DS_Store
+Thumbs.db
+*.swp

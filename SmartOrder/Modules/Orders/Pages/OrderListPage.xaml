@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Orders.Pages.OrderListPage"
+             x:Name="OrdersPage"
+             Title="Pedidos"
+             BackgroundColor="#F4F7FB">
+
+    <Grid RowDefinitions="Auto,*"
+          Padding="18,14,18,18"
+          RowSpacing="12">
+
+        <Frame Grid.Row="0"
+               BackgroundColor="#12344D"
+               BorderColor="#12344D"
+               CornerRadius="18"
+               Padding="14"
+               HasShadow="True">
+            <Grid RowDefinitions="Auto,Auto"
+                  RowSpacing="14">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Pedidos"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                        <Label Text="Consulta, actualiza estatus y abre pedidos para edición completa"
+                               FontSize="13"
+                               TextColor="#D9E2EC" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="Nuevo Pedido"
+                            Clicked="OnNewOrderClicked"
+                            BackgroundColor="#0B6E4F"
+                            TextColor="White"
+                            CornerRadius="14"
+                            HeightRequest="48"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="*,*,Auto,Auto"
+                      ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Fecha inicial"
+                               FontSize="12"
+                               TextColor="#D9E2EC" />
+                        <DatePicker Date="{Binding StartDate}"
+                                    BackgroundColor="#F7FAFC"
+                                    TextColor="#102A43"
+                                    HeightRequest="44" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1"
+                                         Spacing="4">
+                        <Label Text="Fecha final"
+                               FontSize="12"
+                               TextColor="#D9E2EC" />
+                        <DatePicker Date="{Binding EndDate}"
+                                    BackgroundColor="#F7FAFC"
+                                    TextColor="#102A43"
+                                    HeightRequest="44" />
+                    </VerticalStackLayout>
+
+                    <Border Grid.Column="2"
+                            BackgroundColor="#D9EAF7"
+                            StrokeThickness="0"
+                            Padding="14,8"
+                            StrokeShape="RoundRectangle 14"
+                            VerticalOptions="End"
+                            HeightRequest="44">
+                        <VerticalStackLayout Spacing="0"
+                                             VerticalOptions="Center">
+                            <Label Text="Registros"
+                                   FontSize="10"
+                                   TextColor="#486581"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding TotalRecordsText}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#12344D"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Button Grid.Column="3"
+                            Text="Actualizar"
+                            Command="{Binding RefreshCommand}"
+                            BackgroundColor="#D9EAF7"
+                            TextColor="#12344D"
+                            CornerRadius="14"
+                            HeightRequest="44"
+                            FontAttributes="Bold"
+                            VerticalOptions="End" />
+                </Grid>
+            </Grid>
+        </Frame>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Orders}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="40"
+                                     Spacing="8"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center">
+                    <Label Text="No hay pedidos en el rango seleccionado"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43"
+                           HorizontalOptions="Center" />
+                    <Label Text="Ajusta las fechas o crea un nuevo pedido."
+                           FontSize="14"
+                           TextColor="#627D98"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BackgroundColor="White"
+                           BorderColor="#D9E2EC"
+                           CornerRadius="18"
+                           Padding="14"
+                           HasShadow="True"
+                           Margin="0,0,0,12">
+                        <Grid RowDefinitions="Auto,Auto"
+                              RowSpacing="12">
+                            <Grid ColumnDefinitions="0.7*,1.8*,1*,1*,1*,0.8*"
+                                  ColumnSpacing="10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Folio"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding OrderId}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#102A43" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="2">
+                                    <Label Text="Cliente"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding CustomerName}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#102A43"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="2"
+                                                     Spacing="2">
+                                    <Label Text="Inicio"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding ProductionStartText}"
+                                           FontSize="13"
+                                           TextColor="#486581" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="3"
+                                                     Spacing="2">
+                                    <Label Text="Fin"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding ProductionEndText}"
+                                           FontSize="13"
+                                           TextColor="#486581" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="4"
+                                                     Spacing="2">
+                                    <Label Text="Entrega"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding DeliveryDateText}"
+                                           FontSize="13"
+                                           TextColor="#486581" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="5"
+                                                     Spacing="2">
+                                    <Label Text="Hora"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding DeliveryTimeText}"
+                                           FontSize="13"
+                                           TextColor="#486581" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid Grid.Row="1"
+                                  ColumnDefinitions="0.9*,1.5*,1.4*,2.2*,Auto"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Productos"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding Pieces}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#0B6E4F" />
+                                </VerticalStackLayout>
+
+                                <Grid Grid.Column="1"
+                                      ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="8">
+                                    <Label Text="Estatus"
+                                           FontSize="11"
+                                           TextColor="#829AB1"
+                                           VerticalTextAlignment="Center" />
+                                    <Picker Grid.Column="1"
+                                            ItemsSource="{Binding BindingContext.OrderStatuses, Source={x:Reference OrdersPage}}"
+                                            ItemDisplayBinding="{Binding DisplayName}"
+                                            SelectedItem="{Binding SelectedOrderStatus, Mode=TwoWay}"
+                                            SelectedIndexChanged="OnStatusPickerChanged"
+                                            BackgroundColor="#F7FAFC"
+                                            TextColor="#102A43"
+                                            HeightRequest="44" />
+                                </Grid>
+
+                                <Grid Grid.Column="2"
+                                      ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="8">
+                                    <Label Text="Pago"
+                                           FontSize="11"
+                                           TextColor="#829AB1"
+                                           VerticalTextAlignment="Center" />
+                                    <Picker Grid.Column="1"
+                                            ItemsSource="{Binding BindingContext.PaymentStatuses, Source={x:Reference OrdersPage}}"
+                                            ItemDisplayBinding="{Binding DisplayName}"
+                                            SelectedItem="{Binding SelectedPaymentStatus, Mode=TwoWay}"
+                                            SelectedIndexChanged="OnStatusPickerChanged"
+                                            BackgroundColor="#F7FAFC"
+                                            TextColor="#102A43"
+                                            HeightRequest="44" />
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Column="3"
+                                                     Spacing="2">
+                                    <Label Text="Comentarios"
+                                           FontSize="11"
+                                           TextColor="#829AB1" />
+                                    <Label Text="{Binding CommentsSummary}"
+                                           FontSize="13"
+                                           TextColor="#486581"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+
+                                <Button Grid.Column="4"
+                                        Text="Editar"
+                                        Clicked="OnEditOrderClicked"
+                                        BackgroundColor="#1B587C"
+                                        TextColor="White"
+                                        CornerRadius="14"
+                                        HeightRequest="44"
+                                        FontAttributes="Bold" />
+                            </Grid>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

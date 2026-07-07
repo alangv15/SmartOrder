@@ -1,0 +1,163 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Configuration.Pages.ProductFormPage"
+             Title="Producto"
+             BackgroundColor="#F4F7FB">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,14,18,18"
+                             Spacing="0">
+            <Frame BackgroundColor="#12344D"
+                   BorderColor="#12344D"
+                   CornerRadius="18"
+                   Padding="14"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="2">
+                    <Label x:Name="PageTitleLabel"
+                           Text="Nuevo producto"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Define categoria, precio, SKU y disponibilidad del producto"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Datos del producto"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+
+                    <Grid ColumnDefinitions="2*,*"
+                          ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="Nombre"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Entry x:Name="NameEntry"
+                                   Placeholder="Nombre del producto" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="SKU"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Entry x:Name="SkuEntry"
+                                   Placeholder="Codigo interno" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="2*,*"
+                          ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Label Text="Categoria"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Picker x:Name="CategoryPicker" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Precio de venta"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Entry x:Name="SalePriceEntry"
+                                   Placeholder="0.00"
+                                   Keyboard="Numeric" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Descripcion"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Editor x:Name="DescriptionEditor"
+                                Placeholder="Descripcion opcional del producto"
+                                AutoSize="TextChanges"
+                                MinimumHeightRequest="86" />
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*,*"
+                          ColumnSpacing="12">
+                        <Grid Grid.Column="0"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="12">
+                            <Switch x:Name="IsDirectSaleSwitch"
+                                    IsToggled="True"
+                                    VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2">
+                                <Label Text="Disponible en mostrador"
+                                       FontAttributes="Bold"
+                                       TextColor="#102A43" />
+                                <Label Text="Aparece en los combos de ventas directas"
+                                       FontSize="12"
+                                       TextColor="#627D98" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Grid Grid.Column="1"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="12">
+                            <Switch x:Name="IsActiveSwitch"
+                                    IsToggled="True"
+                                    VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2">
+                                <Label Text="Producto activo"
+                                       FontAttributes="Bold"
+                                       TextColor="#102A43" />
+                                <Label Text="Desactivalo si ya no debe estar disponible"
+                                       FontSize="12"
+                                       TextColor="#627D98" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="12"
+                          Margin="0,8,0,0">
+                        <HorizontalStackLayout Spacing="12">
+                            <Button Text="Guardar"
+                                    Clicked="OnSaveClicked"
+                                    BackgroundColor="#0B6E4F"
+                                    TextColor="White"
+                                    CornerRadius="14"
+                                    HeightRequest="50"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="FillAndExpand" />
+
+                            <Button x:Name="DeactivateButton"
+                                    Text="Desactivar"
+                                    Clicked="OnDeactivateClicked"
+                                    BackgroundColor="#B42318"
+                                    TextColor="White"
+                                    CornerRadius="14"
+                                    HeightRequest="50"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="FillAndExpand"
+                                    IsVisible="False" />
+                        </HorizontalStackLayout>
+
+                        <Button Grid.Column="1"
+                                Text="Regresar"
+                                Clicked="OnBackClicked"
+                                BackgroundColor="#D9E2EC"
+                                TextColor="#102A43"
+                                CornerRadius="14"
+                                HeightRequest="50"
+                                FontAttributes="Bold"
+                                Padding="18,0" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

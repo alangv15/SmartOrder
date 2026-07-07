@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Reports.Pages.DailySalesReportPage"
+             Title="Ventas del Dia"
+             BackgroundColor="#F4F7FB">
+
+    <ContentPage.Resources>
+        <Style x:Key="CardFrameStyle" TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="BorderColor" Value="#D9E2EC" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="HasShadow" Value="True" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="SectionTitleStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#102A43" />
+        </Style>
+
+        <Style x:Key="SectionCaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="#627D98" />
+        </Style>
+
+        <Style x:Key="MetricValueStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="RefreshButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#E6EEF8" />
+            <Setter Property="TextColor" Value="#0F4C81" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="WidthRequest" Value="54" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*"
+          Padding="18,14,18,18"
+          RowSpacing="0">
+
+        <Frame Grid.Row="0"
+               Style="{StaticResource CardFrameStyle}"
+               BackgroundColor="#12344D"
+               BorderColor="#12344D"
+               Padding="14">
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+                <VerticalStackLayout Grid.Column="0"
+                                     Spacing="2"
+                                     VerticalOptions="Center">
+                    <Label Text="Reporte diario de ventas"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="{Binding SelectedDate, StringFormat='Fecha seleccionada: {0:dd/MM/yyyy}'}"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+
+                <DatePicker Grid.Column="1"
+                            Date="{Binding SelectedDate, Mode=TwoWay}"
+                            Format="dd/MM/yyyy"
+                            BackgroundColor="White"
+                            TextColor="#102A43"
+                            MinimumWidthRequest="150"
+                            VerticalOptions="Center" />
+
+                <Button Grid.Column="2"
+                        Text="&#x21bb;"
+                        Command="{Binding LoadSalesCommand}"
+                        Style="{StaticResource RefreshButtonStyle}"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Frame>
+
+        <Frame Grid.Row="1"
+               Style="{StaticResource CardFrameStyle}">
+            <VerticalStackLayout Spacing="14">
+                <Label Text="Resumen del dia"
+                       Style="{StaticResource SectionTitleStyle}" />
+
+                <Grid ColumnDefinitions="*,*,*,*"
+                      ColumnSpacing="10">
+                    <Frame Grid.Column="0"
+                           BackgroundColor="#164A68"
+                           BorderColor="#164A68"
+                           CornerRadius="14"
+                           Padding="10"
+                           HasShadow="False"
+                           Margin="0">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Articulos"
+                                   FontSize="11"
+                                   TextColor="#BCCCDC"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding TotalItemsSold}"
+                                   Style="{StaticResource MetricValueStyle}"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Column="1"
+                           BackgroundColor="#0B6E4F"
+                           BorderColor="#0B6E4F"
+                           CornerRadius="14"
+                           Padding="10"
+                           HasShadow="False"
+                           Margin="0">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Efectivo"
+                                   FontSize="11"
+                                   TextColor="#D9F3E7"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding CashSalesAmount, StringFormat='${0:F2}'}"
+                                   Style="{StaticResource MetricValueStyle}"
+                                   TextColor="White" />
+                            <Label Text="{Binding CashTransactionsCount, StringFormat='{0} transacciones'}"
+                                   FontSize="11"
+                                   TextColor="#D9F3E7"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Column="2"
+                           BackgroundColor="#1B587C"
+                           BorderColor="#1B587C"
+                           CornerRadius="14"
+                           Padding="10"
+                           HasShadow="False"
+                           Margin="0">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Tarjeta"
+                                   FontSize="11"
+                                   TextColor="#DCEEF8"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding CardSalesAmount, StringFormat='${0:F2}'}"
+                                   Style="{StaticResource MetricValueStyle}"
+                                   TextColor="White" />
+                            <Label Text="{Binding CardTransactionsCount, StringFormat='{0} transacciones'}"
+                                   FontSize="11"
+                                   TextColor="#DCEEF8"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Column="3"
+                           BackgroundColor="#6C4C1D"
+                           BorderColor="#6C4C1D"
+                           CornerRadius="14"
+                           Padding="10"
+                           HasShadow="False"
+                           Margin="0">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Total del dia"
+                                   FontSize="11"
+                                   TextColor="#F9E0AE"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding TotalSalesAmount, StringFormat='${0:F2}'}"
+                                   Style="{StaticResource MetricValueStyle}"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+            </VerticalStackLayout>
+        </Frame>
+
+        <Frame Grid.Row="2"
+               Style="{StaticResource CardFrameStyle}"
+               Padding="0"
+               Margin="0">
+            <Grid RowDefinitions="Auto,*">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="0.9*,1.2*,1.7*,0.8*,1*,0.9*,0.9*"
+                      BackgroundColor="#EAF1F8"
+                      Padding="16,10"
+                      Margin="16,16,16,8">
+                    <Label Text="Folio" Grid.Column="0" FontAttributes="Bold" TextColor="#243B53" />
+                    <Label Text="Categoria" Grid.Column="1" FontAttributes="Bold" TextColor="#243B53" />
+                    <Label Text="Producto" Grid.Column="2" FontAttributes="Bold" TextColor="#243B53" />
+                    <Label Text="Cantidad" Grid.Column="3" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Total" Grid.Column="4" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Pago" Grid.Column="5" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="Hora" Grid.Column="6" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      Margin="0,0,0,12">
+                    <CollectionView ItemsSource="{Binding SalesItems}"
+                                    Margin="0,0,0,4">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="0.9*,1.2*,1.7*,0.8*,1*,0.9*,0.9*"
+                                      Padding="16,10"
+                                      Margin="16,0,16,8"
+                                      BackgroundColor="#FBFCFE">
+                                    <Label Text="{Binding Folio}"
+                                           Grid.Column="0"
+                                           TextColor="#486581" />
+                                    <Label Text="{Binding Category}"
+                                           Grid.Column="1"
+                                           TextColor="#486581" />
+                                    <Label Text="{Binding ProductName}"
+                                           Grid.Column="2"
+                                           TextColor="#102A43" />
+                                    <Label Text="{Binding Quantity}"
+                                           Grid.Column="3"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="{Binding Total, StringFormat='${0:F2}'}"
+                                           Grid.Column="4"
+                                           HorizontalOptions="Center"
+                                           FontAttributes="Bold"
+                                           TextColor="#0B6E4F" />
+                                    <Label Text="{Binding PaymentMethodLabel}"
+                                           TextColor="{Binding PaymentMethodColorHex}"
+                                           Grid.Column="5"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="{Binding Time}"
+                                           Grid.Column="6"
+                                           HorizontalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="8"
+                                                 Padding="40">
+                                <Label Text="No hay ventas registradas para este dia"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="#102A43" />
+                                <Label Text="Selecciona otra fecha o actualiza el reporte para intentar de nuevo."
+                                       FontSize="14"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#627D98" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       Color="#1B587C" />
+                </Grid>
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentPage>

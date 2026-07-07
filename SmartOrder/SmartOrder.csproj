@@ -1,0 +1,147 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>SmartOrder</RootNamespace>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <EnableDefaultCssItems>false</EnableDefaultCssItems>
+        <Nullable>enable</Nullable>
+        <ApplicationTitle>SmartOrder</ApplicationTitle>
+        <ApplicationId>com.companyname.smartorder</ApplicationId>
+        <ApplicationDisplayVersion>1.0.2</ApplicationDisplayVersion>
+        <ApplicationVersion>102</ApplicationVersion>
+        <WindowsPackageType>None</WindowsPackageType>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+        <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+        <MauiImage Include="Resources\Images\*" />
+        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+        <MauiFont Include="Resources\Fonts\*" />
+        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SmartOrder.Business\SmartOrder.Business.csproj" />
+      <ProjectReference Include="..\SmartOrder.Entities\SmartOrder.Entities.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Update="Shell\AppShell.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\BranchFormPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\BranchListPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\CategoryFormPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\CategoryListPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\CustomerFormPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\CustomerListPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Sales\Pages\SaleFormPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Orders\Pages\OrderFormPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Orders\Pages\OrderListPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Reports\Pages\DailySalesReportPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Reports\Pages\SalesSummaryReportPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Security\Pages\LoginPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Security\Pages\UserFormPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Security\Pages\UserListPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Components\Layout\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Modules\Configuration\Pages\BranchFormPage.xaml.cs">
+        <DependentUpon>BranchFormPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Sales\Pages\SaleFormPage.xaml.cs">
+        <DependentUpon>SaleFormPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Configuration\Pages\CategoryFormPage.xaml.cs">
+        <DependentUpon>CategoryFormPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Configuration\Pages\CategoryListPage.xaml.cs">
+        <DependentUpon>CategoryListPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Configuration\Pages\CustomerFormPage.xaml.cs">
+        <DependentUpon>CustomerFormPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Configuration\Pages\CustomerListPage.xaml.cs">
+        <DependentUpon>CustomerListPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Orders\Pages\OrderFormPage.xaml.cs">
+        <DependentUpon>OrderFormPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Orders\Pages\OrderListPage.xaml.cs">
+        <DependentUpon>OrderListPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Reports\Pages\DailySalesReportPage.xaml.cs">
+        <DependentUpon>DailySalesReportPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Reports\Pages\SalesSummaryReportPage.xaml.cs">
+        <DependentUpon>SalesSummaryReportPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Security\Pages\UserFormPage.xaml.cs">
+        <DependentUpon>UserFormPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Security\Pages\UserListPage.xaml.cs">
+        <DependentUpon>UserListPage.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+</Project>

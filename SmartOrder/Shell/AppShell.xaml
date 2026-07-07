@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:configPages="clr-namespace:SmartOrder.Modules.Configuration.Pages"
+       xmlns:salesPages="clr-namespace:SmartOrder.Modules.Sales.Pages"
+       xmlns:orderPages="clr-namespace:SmartOrder.Modules.Orders.Pages"
+       xmlns:reportPages="clr-namespace:SmartOrder.Modules.Reports.Pages"
+       xmlns:securityPages="clr-namespace:SmartOrder.Modules.Security.Pages"
+       x:Class="SmartOrder.Shell.AppShell"
+       Shell.FlyoutBehavior="Flyout"
+       Shell.FlyoutBackgroundColor="#F4F7FB"
+       Shell.ForegroundColor="#12344D"
+       Shell.TitleColor="#12344D"
+       Shell.UnselectedColor="#627D98"
+       Shell.NavBarHasShadow="False">
+
+    <Shell.Resources>
+        <Style x:Key="FlyoutGroupButtonStyle" TargetType="Grid">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+
+        <Style x:Key="FlyoutChildStyle" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#EAF2FB" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Margin" Value="18,0,0,8" />
+            <Setter Property="StrokeShape">
+                <Setter.Value>
+                    <RoundRectangle CornerRadius="16" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Shell.Resources>
+
+    <Shell.FlyoutHeader>
+        <Grid Padding="22,26,22,22">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#12344D" Offset="0.0" />
+                    <GradientStop Color="#1B587C" Offset="0.55" />
+                    <GradientStop Color="#0B6E4F" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="SmartOrder"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="White" />
+                <Label Text="Punto de venta · V1.0.2"
+                       FontSize="14"
+                       TextColor="#D9EAF7" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <Shell.FlyoutContent>
+        <ScrollView>
+            <VerticalStackLayout Padding="18,18,18,10" Spacing="0">
+                <Border BackgroundColor="#D9EAF7"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        IsVisible="{Binding CanAccessSales}"
+                        StrokeShape="RoundRectangle 20">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSalesTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Ventas"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="#12344D" />
+                        <Label Grid.Column="1"
+                               Text="Ir"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#0B6E4F"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="#E8F5EF"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        IsVisible="{Binding CanAccessOrders}"
+                        StrokeShape="RoundRectangle 20">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnOrdersTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Pedidos"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="#0B6E4F" />
+                        <Label Grid.Column="1"
+                               Text="Ir"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#12344D"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="0"
+                        Margin="0,0,0,12"
+                        IsVisible="{Binding CanAccessReports}"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Style="{StaticResource FlyoutGroupButtonStyle}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnReportsTapped" />
+                            </Grid.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Reportes"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="#12344D" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding ReportsChevron}"
+                                       FontSize="18"
+                                       TextColor="#1B587C"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+
+                        <VerticalStackLayout IsVisible="{Binding IsReportsExpanded}" Spacing="0" Padding="0,0,14,10">
+                            <Border Style="{StaticResource FlyoutChildStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDailyReportTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanViewDailyReport" />
+                                </Border.IsVisible>
+                                <Label Text="Reporte diario"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#255E7A" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSalesSummaryReportTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanViewSalesSummaryReport" />
+                                </Border.IsVisible>
+                                <Label Text="Acumulado de ventas"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#255E7A" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="0"
+                        Margin="0,0,0,12"
+                        IsVisible="{Binding CanAccessConfiguration}"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Style="{StaticResource FlyoutGroupButtonStyle}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnConfigurationTapped" />
+                            </Grid.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Configuración"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="#12344D" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding ConfigurationChevron}"
+                                       FontSize="18"
+                                       TextColor="#0B6E4F"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+
+                        <VerticalStackLayout IsVisible="{Binding IsConfigurationExpanded}" Spacing="0" Padding="0,0,14,10">
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#E8F5EF">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCategoriesTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageCategories" />
+                                </Border.IsVisible>
+                                <Label Text="Categorías"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#E8F5EF">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBranchesTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageBranches" />
+                                </Border.IsVisible>
+                                <Label Text="Sucursales"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#E8F5EF">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnProductsTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageProducts" />
+                                </Border.IsVisible>
+                                <Label Text="Productos"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#E8F5EF">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCustomersTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageCustomers" />
+                                </Border.IsVisible>
+                                <Label Text="Clientes"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="0"
+                        Margin="0,0,0,12"
+                        IsVisible="{Binding CanAccessSecurity}"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Style="{StaticResource FlyoutGroupButtonStyle}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSecurityTapped" />
+                            </Grid.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Seguridad"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="#12344D" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding SecurityChevron}"
+                                       FontSize="18"
+                                       TextColor="#6B2F54"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+
+                        <VerticalStackLayout IsVisible="{Binding IsSecurityExpanded}" Spacing="0" Padding="0,0,14,10">
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#F8E9F1">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnUsersTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageUsers" />
+                                </Border.IsVisible>
+                                <Label Text="Usuarios"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#6B2F54" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#F8E9F1">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRolesTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageRoles" />
+                                </Border.IsVisible>
+                                <Label Text="Roles"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#6B2F54" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#F8E9F1">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnAccessTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageAccess" />
+                                </Border.IsVisible>
+                                <Label Text="Accesos"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#6B2F54" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Shell.FlyoutContent>
+
+    <ShellContent Route="SalesFormPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate salesPages:SaleFormPage}" />
+    <ShellContent Route="OrderListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate orderPages:OrderListPage}" />
+    <ShellContent Route="OrderFormPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate orderPages:OrderFormPage}" />
+    <ShellContent Route="DailySalesReportPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate reportPages:DailySalesReportPage}" />
+    <ShellContent Route="SalesSummaryReportPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate reportPages:SalesSummaryReportPage}" />
+    <ShellContent Route="CategoryListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:CategoryListPage}" />
+    <ShellContent Route="BranchListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:BranchListPage}" />
+    <ShellContent Route="ProductListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:ProductListPage}" />
+    <ShellContent Route="CustomerListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:CustomerListPage}" />
+    <ShellContent Route="LoginPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate securityPages:LoginPage}" />
+    <ShellContent Route="UserListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate securityPages:UserListPage}" />
+    <ShellContent Route="RoleListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate securityPages:RoleListPage}" />
+    <ShellContent Route="AccessMatrixPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate securityPages:AccessMatrixPage}" />
+</Shell>
