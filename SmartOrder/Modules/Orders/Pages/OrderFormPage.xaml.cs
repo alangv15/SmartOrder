@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using SmartOrder.Business.Configuration.Services;
 using SmartOrder.Business.Orders.Services;
 using SmartOrder.Modules.Orders.ViewModels;
+using SmartOrder.Shared.Printing;
 
 namespace SmartOrder.Modules.Orders.Pages;
 
@@ -9,7 +10,6 @@ public partial class OrderFormPage : ContentPage, IQueryAttributable
 {
     private readonly OrderFormViewModel _viewModel;
     private int? _pendingOrderId;
-    private int? _loadedOrderId;
     private bool _pendingNewOrder;
     private bool _isNewModeActive;
 
@@ -23,7 +23,8 @@ public partial class OrderFormPage : ContentPage, IQueryAttributable
         OrderStatusService orderStatusService,
         PaymentStatusService paymentStatusService,
         DiscountRuleService discountRuleService,
-        DiscountLimitRuleService discountLimitRuleService)
+        DiscountLimitRuleService discountLimitRuleService,
+        ITicketPrinterService ticketPrinterService)
     {
         InitializeComponent();
         var defaultUserId = configuration.GetValue<int?>("OperationSettings:DefaultUserId") ?? 1;
@@ -37,14 +38,26 @@ public partial class OrderFormPage : ContentPage, IQueryAttributable
             orderStatusService,
             paymentStatusService,
             discountRuleService,
-            discountLimitRuleService);
+            discountLimitRuleService,
+            ticketPrinterService);
         BindingContext = _viewModel;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (!_viewModel.TryConsumeCatalogRefreshSkip())
+
+        if (Navigation.ModalStack.Any())
+        {
+            return;
+        }
+
+        if (_viewModel.TryConsumeCatalogRefreshSkip())
+        {
+            return;
+        }
+
+        if (!Navigation.ModalStack.Any())
         {
             await _viewModel.RefreshCatalogDataAsync();
         }
@@ -64,18 +77,12 @@ public partial class OrderFormPage : ContentPage, IQueryAttributable
 
             _pendingNewOrder = true;
             _pendingOrderId = null;
-            _loadedOrderId = null;
         }
 
         if (query.TryGetValue("orderId", out var orderIdValue)
             && int.TryParse(orderIdValue?.ToString(), out var orderId)
             && orderId > 0)
         {
-            if (_loadedOrderId == orderId || _pendingOrderId == orderId)
-            {
-                return;
-            }
-
             _pendingOrderId = orderId;
             _pendingNewOrder = false;
             _isNewModeActive = false;
@@ -88,7 +95,6 @@ public partial class OrderFormPage : ContentPage, IQueryAttributable
         {
             _pendingNewOrder = false;
             _viewModel.ResetForm();
-            _loadedOrderId = null;
             _isNewModeActive = true;
             return;
         }
@@ -98,7 +104,6 @@ public partial class OrderFormPage : ContentPage, IQueryAttributable
             var orderId = _pendingOrderId.Value;
             _pendingOrderId = null;
             await _viewModel.LoadOrderByIdAsync(orderId, showLoadedMessage: true);
-            _loadedOrderId = _viewModel.EditingOrderId == orderId ? orderId : null;
             _isNewModeActive = false;
         }
     }

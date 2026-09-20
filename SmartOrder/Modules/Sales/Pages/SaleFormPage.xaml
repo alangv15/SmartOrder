@@ -82,7 +82,7 @@
                BackgroundColor="White"
                BorderColor="#D9E2EC"
                Padding="14">
-            <Grid ColumnDefinitions="*,Auto"
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                   ColumnSpacing="14">
                 <Grid Grid.Column="0"
                       ColumnDefinitions="*,*,*,*"
@@ -115,6 +115,26 @@
                 </Grid>
 
                 <Button Grid.Column="1"
+                        Text="PDF"
+                        Command="{Binding ExportSalePdfCommand}"
+                        IsVisible="{Binding IsEditingSale}"
+                        Style="{StaticResource HeaderIconButtonStyle}"
+                        BackgroundColor="#E8F5EF"
+                        TextColor="#0B6E4F"
+                        VerticalOptions="Center" />
+
+                <Button Grid.Column="2"
+                        Text="Ticket"
+                        Command="{Binding PrintSaleTicketCommand}"
+                        IsVisible="{Binding IsEditingSale}"
+                        Style="{StaticResource HeaderIconButtonStyle}"
+                        WidthRequest="72"
+                        BackgroundColor="#FFF4D6"
+                        TextColor="#7C5E10"
+                        FontSize="13"
+                        VerticalOptions="Center" />
+
+                <Button Grid.Column="3"
                         Text="&#x270E;"
                         Command="{Binding LoadSaleForEditCommand}"
                         Style="{StaticResource HeaderIconButtonStyle}"
@@ -310,49 +330,8 @@
                 <VerticalStackLayout Spacing="14">
                     <Label Text="Cobro y cierre" Style="{StaticResource SectionTitleStyle}" />
 
-                    <Grid ColumnDefinitions="1.05*,1.05*,1.05*,1.05*,1.15*,1.2*" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="6">
-                            <Label Text="Genero" Style="{StaticResource SectionCaptionStyle}" />
-                            <Picker Title="Selecciona genero"
-                                    ItemsSource="{Binding CustomerGenderOptions}"
-                                    ItemDisplayBinding="{Binding Label}"
-                                    SelectedItem="{Binding SelectedCustomerGender}"
-                                    HorizontalOptions="Fill"
-                                    Style="{StaticResource PickerControlStyle}" />
-                        </VerticalStackLayout>
-
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
                         <VerticalStackLayout Grid.Column="1" Spacing="6">
-                            <Label Text="Rango de edad" Style="{StaticResource SectionCaptionStyle}" />
-                            <Picker Title="Selecciona rango"
-                                    ItemsSource="{Binding CustomerAgeRangeOptions}"
-                                    ItemDisplayBinding="{Binding Label}"
-                                    SelectedItem="{Binding SelectedCustomerAgeRange}"
-                                    HorizontalOptions="Fill"
-                                    Style="{StaticResource PickerControlStyle}" />
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Grid.Column="2" Spacing="6">
-                            <Label Text="Tipo de cliente" Style="{StaticResource SectionCaptionStyle}" />
-                            <Picker Title="Selecciona tipo"
-                                    ItemsSource="{Binding CustomerTypeOptions}"
-                                    ItemDisplayBinding="{Binding Label}"
-                                    SelectedItem="{Binding SelectedCustomerType}"
-                                    HorizontalOptions="Fill"
-                                    Style="{StaticResource PickerControlStyle}" />
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Grid.Column="3" Spacing="6">
-                            <Label Text="Como nos encontro" Style="{StaticResource SectionCaptionStyle}" />
-                            <Picker Title="Selecciona un canal"
-                                    ItemsSource="{Binding AcquisitionChannelOptions}"
-                                    ItemDisplayBinding="{Binding Label}"
-                                    SelectedItem="{Binding SelectedAcquisitionChannel}"
-                                    IsEnabled="{Binding IsAcquisitionChannelEnabled}"
-                                    HorizontalOptions="Fill"
-                                    Style="{StaticResource PickerControlStyle}" />
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Grid.Column="4" Spacing="6">
                             <Label Text="Metodo de pago" Style="{StaticResource SectionCaptionStyle}" />
                             <Frame BorderColor="#D9E2EC" CornerRadius="14" Padding="4,2" HasShadow="False">
                                 <VerticalStackLayout Spacing="0">
@@ -386,7 +365,7 @@
                             </Frame>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Grid.Column="5" Spacing="6">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
                             <Label Text="Descuento" Style="{StaticResource SectionCaptionStyle}" />
                             <Button Text="{Binding DiscountSelectionSummary}"
                                     Command="{Binding SelectDiscountsCommand}"
@@ -398,6 +377,52 @@
                                     CornerRadius="12"
                                     HeightRequest="52"
                                     FontSize="13" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2"
+                                             Spacing="6"
+                                             IsVisible="{Binding IsCashPaymentSelected}">
+                            <Label Text="Pago en efectivo" Style="{StaticResource SectionCaptionStyle}" />
+                            <Frame BorderColor="#D9E2EC"
+                                   CornerRadius="14"
+                                   Padding="10,8"
+                                   HasShadow="False"
+                                   BackgroundColor="#F8FBFF">
+                                <Grid RowDefinitions="Auto,Auto"
+                                      ColumnDefinitions="*,*"
+                                      ColumnSpacing="10"
+                                      RowSpacing="6">
+                                    <VerticalStackLayout Grid.Row="0"
+                                                         Grid.Column="0"
+                                                         Spacing="3">
+                                        <Label Text="Recibido"
+                                               FontSize="11"
+                                               TextColor="#627D98" />
+                                        <Entry Text="{Binding CashReceivedAmountText, Mode=TwoWay}"
+                                               Keyboard="Numeric"
+                                               Placeholder="$0.00"
+                                               FontSize="16"
+                                               HeightRequest="40"
+                                               BackgroundColor="White"
+                                               TextColor="#102A43" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Row="0"
+                                                         Grid.Column="1"
+                                                         Spacing="3">
+                                        <Label Text="Cambio"
+                                               FontSize="11"
+                                               TextColor="#627D98" />
+                                        <Label Text="{Binding CashChangeAmountDisplay}"
+                                               FontSize="20"
+                                               FontAttributes="Bold"
+                                               TextColor="#0B6E4F"
+                                               VerticalOptions="Center"
+                                               HeightRequest="40"
+                                               VerticalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
                         </VerticalStackLayout>
                     </Grid>
 

@@ -23,19 +23,28 @@ public static class AppChecklistService
             return null;
         }
 
-        var result = new TaskCompletionSource<IReadOnlyList<int>?>();
+        var result = new TaskCompletionSource<IReadOnlyList<int>?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var optionList = options.ToList();
+        var isClosing = false;
 
         async Task CloseAsync(IReadOnlyList<int>? selectedIds)
         {
-            if (!result.Task.IsCompleted)
+            if (isClosing)
             {
-                result.SetResult(selectedIds);
+                return;
             }
 
-            if (currentPage.Navigation.ModalStack.LastOrDefault() is ContentPage modal)
+            isClosing = true;
+            try
             {
-                await currentPage.Navigation.PopModalAsync();
+                if (currentPage.Navigation.ModalStack.LastOrDefault() is ContentPage)
+                {
+                    await currentPage.Navigation.PopModalAsync();
+                }
+            }
+            finally
+            {
+                result.TrySetResult(selectedIds);
             }
         }
 

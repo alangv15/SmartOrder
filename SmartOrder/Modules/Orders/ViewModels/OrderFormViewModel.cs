@@ -6,6 +6,7 @@ using SmartOrder.Modules.Orders.Pages;
 using SmartOrder.Modules.Orders.Services;
 using SmartOrder.Shared.Catalogs;
 using SmartOrder.Shared.Models;
+using SmartOrder.Shared.Printing;
 using SmartOrder.Shared.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -27,6 +28,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
         private readonly PaymentStatusService _paymentStatusService;
         private readonly DiscountRuleService _discountRuleService;
         private readonly DiscountLimitRuleService _discountLimitRuleService;
+        private readonly ITicketPrinterService _ticketPrinterService;
         private readonly Command _addProductCommand;
         private readonly Command _saveCommand;
         private readonly Command _loadOrderForEditCommand;
@@ -49,6 +51,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
         private readonly HashSet<int> _selectedDiscountIds = new();
         private string _productSearchText = string.Empty;
         private string _comments = string.Empty;
+        private bool _isInternalProduction;
 
         public OrderFormViewModel(
             int defaultUserId,
@@ -60,7 +63,8 @@ namespace SmartOrder.Modules.Orders.ViewModels
             OrderStatusService orderStatusService,
             PaymentStatusService paymentStatusService,
             DiscountRuleService discountRuleService,
-            DiscountLimitRuleService discountLimitRuleService)
+            DiscountLimitRuleService discountLimitRuleService,
+            ITicketPrinterService ticketPrinterService)
         {
             _defaultUserId = defaultUserId;
             _orderService = orderService;
@@ -72,6 +76,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
             _paymentStatusService = paymentStatusService;
             _discountRuleService = discountRuleService;
             _discountLimitRuleService = discountLimitRuleService;
+            _ticketPrinterService = ticketPrinterService;
 
             SearchProductCommand = new Command(FilterProducts);
             SelectDiscountsCommand = new Command(async () => await SelectDiscountsAsync());
@@ -81,9 +86,10 @@ namespace SmartOrder.Modules.Orders.ViewModels
             SaveCommand = _saveCommand;
             _loadOrderForEditCommand = new Command(async () => await LoadOrderForEditAsync(), () => CanLoadOrderForEdit);
             LoadOrderForEditCommand = _loadOrderForEditCommand;
-            _cancelEditCommand = new Command(CancelEdit, () => CanCancelEdit);
+            _cancelEditCommand = new Command(async () => await CancelEditAsync(), () => CanCancelEdit);
             CancelEditCommand = _cancelEditCommand;
             ExportOrderPdfCommand = new Command(async () => await ExportOrderPdfAsync());
+            PrintOrderTicketCommand = new Command(async () => await PrintOrderTicketAsync());
 
             OrderItems.CollectionChanged += OrderItems_CollectionChanged;
             LoadPaymentMethods();
@@ -189,9 +195,29 @@ namespace SmartOrder.Modules.Orders.ViewModels
             }
         }
 
+        public bool IsInternalProduction
+        {
+            get => _isInternalProduction;
+            set
+            {
+                if (_isInternalProduction != value)
+                {
+                    _isInternalProduction = value;
+                    OnPropertyChanged(nameof(IsInternalProduction));
+                    OnPropertyChanged(nameof(IsRegularCustomerOrder));
+                    OnPropertyChanged(nameof(DiscountSelectionSummary));
+                    ApplyInternalProductionState();
+                    RefreshItemDiscounts();
+                    RefreshTotals();
+                }
+            }
+        }
+
+        public bool IsRegularCustomerOrder => !IsInternalProduction;
+
         public string DiscountSelectionSummary => GetSelectedDiscounts().Any()
             ? string.Join(", ", GetSelectedDiscounts().Select(discount => discount.Name))
-            : "Sin descuento";
+            : IsInternalProduction ? "No aplica" : "Sin descuento";
 
         public string ProductSearchText
         {
@@ -221,9 +247,9 @@ namespace SmartOrder.Modules.Orders.ViewModels
         }
 
         public int TotalProductQuantity => OrderItems.Sum(item => item.Quantity);
-        public decimal Subtotal => OrderItems.Sum(item => item.Subtotal);
-        public decimal DiscountAmount => OrderItems.Sum(item => item.DiscountAmount);
-        public decimal Total => Subtotal - DiscountAmount;
+        public decimal Subtotal => IsInternalProduction ? 0 : OrderItems.Sum(item => item.Subtotal);
+        public decimal DiscountAmount => IsInternalProduction ? 0 : OrderItems.Sum(item => item.DiscountAmount);
+        public decimal Total => IsInternalProduction ? 0 : Subtotal - DiscountAmount;
         public bool HasOrderItems => OrderItems.Any();
         public bool IsOrderItemsEmpty => !HasOrderItems;
         public int? EditingOrderId => _editingOrderId;
@@ -307,6 +333,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
         public ICommand LoadOrderForEditCommand { get; }
         public ICommand CancelEditCommand { get; }
         public ICommand ExportOrderPdfCommand { get; }
+        public ICommand PrintOrderTicketCommand { get; }
 
         public async Task RefreshCatalogDataAsync()
         {
@@ -393,6 +420,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
                 SelectedCustomer = Customers.FirstOrDefault(customer => customer.CustomerId == selectedCustomerId);
                 SelectedOrderStatus = OrderStatuses.FirstOrDefault(status => CodesEqual(status.OrderStatusCode, selectedOrderStatusCode));
                 SelectedPaymentStatus = PaymentStatuses.FirstOrDefault(status => CodesEqual(status.PaymentStatusCode, selectedPaymentStatusCode));
+                ApplyInternalProductionState();
                 _selectedDiscountIds.Clear();
                 foreach (var discountId in selectedDiscountIds.Where(id => Discounts.Any(discount => discount.DiscountRuleId == id)))
                 {
@@ -440,9 +468,24 @@ namespace SmartOrder.Modules.Orders.ViewModels
             }
         }
 
+        private void ApplyInternalProductionState()
+        {
+            if (!IsInternalProduction)
+            {
+                return;
+            }
+
+            SelectedCustomer = null;
+            SelectedPaymentStatus = PaymentStatuses.FirstOrDefault(status =>
+                CodesEqual(status.PaymentStatusCode, OrderCatalog.NotApplicablePaymentStatusCode));
+            SelectedPaymentMethod = null;
+            _selectedDiscountIds.Clear();
+            OnPropertyChanged(nameof(DiscountSelectionSummary));
+        }
+
         private async Task ExportOrderPdfAsync()
         {
-            if (SelectedCustomer == null)
+            if (!IsInternalProduction && SelectedCustomer == null)
             {
                 await AppMessageService.ShowAsync(new AppMessageOptions
                 {
@@ -472,7 +515,8 @@ namespace SmartOrder.Modules.Orders.ViewModels
                     branch?.Name ?? "SmartOrder",
                     BuildBranchAddress(branch),
                     branch?.Phone,
-                    SelectedCustomer.FullName,
+                    IsInternalProduction ? "Produccion del local" : SelectedCustomer!.FullName,
+                    IsInternalProduction,
                     DeliveryDate,
                     DeliveryTime,
                     Comments,
@@ -503,6 +547,97 @@ namespace SmartOrder.Modules.Orders.ViewModels
                     Message = "Ocurrio un error al generar el PDF del pedido. Revisa el archivo smartorder-errors.log."
                 });
             }
+        }
+
+        private async Task PrintOrderTicketAsync()
+        {
+            if (!IsInternalProduction && SelectedCustomer == null)
+            {
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "Cliente requerido",
+                    Message = "Selecciona un cliente antes de imprimir el ticket del pedido."
+                });
+                return;
+            }
+
+            if (!OrderItems.Any())
+            {
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "Pedido vacio",
+                    Message = "Agrega al menos un producto antes de imprimir el ticket."
+                });
+                return;
+            }
+
+            try
+            {
+                RefreshItemDiscounts();
+                var branch = await _branchService.GetByIdAsync(_currentBranchId);
+                var result = await _ticketPrinterService.PrintAsync(BuildOrderTicketDocument(branch));
+
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = result.Success ? AppMessageType.Success : AppMessageType.Info,
+                    Title = result.Title,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                FileErrorLogger.Log("OrderFormViewModel.PrintOrderTicketAsync", ex);
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "No se pudo imprimir",
+                    Message = "Ocurrio un error al preparar el ticket del pedido. Revisa el archivo smartorder-errors.log."
+                });
+            }
+        }
+
+        private TicketDocument BuildOrderTicketDocument(BranchDto? branch)
+        {
+            var branchAddress = BuildBranchAddress(branch);
+            var includeDiscounts = DiscountAmount > 0;
+            var totals = new List<TicketTotalLine>
+            {
+                new("Subtotal", Subtotal)
+            };
+
+            if (includeDiscounts)
+            {
+                totals.Add(new TicketTotalLine("Descuento", DiscountAmount));
+            }
+
+            totals.Add(new TicketTotalLine("Total", Total, IsGrandTotal: true));
+
+            return new TicketDocument(
+                branch?.Name ?? "SmartOrder",
+                new[]
+                {
+                    branchAddress,
+                    string.IsNullOrWhiteSpace(branch?.Phone) ? null : $"WhatsApp {branch.Phone}"
+                }.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => line!).ToList(),
+                new[]
+                {
+                    new TicketInfoLine("Folio", _editingOrderId?.ToString() ?? "Borrador"),
+                    new TicketInfoLine("Cliente", IsInternalProduction ? "Produccion del local" : SelectedCustomer!.FullName),
+                    new TicketInfoLine("Entrega", DeliveryDate.Date.Add(DeliveryTime).ToString("dd/MM/yyyy HH:mm")),
+                    new TicketInfoLine("Piezas", TotalProductQuantity.ToString())
+                },
+                OrderItems.Select(item => new TicketItemLine(
+                    item.CategoryName,
+                    item.ProductName,
+                    item.Quantity,
+                    IsInternalProduction ? 0 : item.Price,
+                    IsInternalProduction ? 0 : item.DiscountAmount,
+                    IsInternalProduction ? 0 : item.Total)).ToList(),
+                includeDiscounts,
+                totals,
+                new[] { "Gracias por su preferencia" });
         }
 
         private void FilterProducts()
@@ -544,7 +679,11 @@ namespace SmartOrder.Modules.Orders.ViewModels
                 CategoryId = SelectedProduct.CategoryId,
                 CategoryName = ResolveCategoryName(SelectedProduct.CategoryId),
                 ProductName = SelectedProduct.Name,
-                Price = SelectedProduct.SalePrice,
+                Price = ResolveCurrentSalePrice(SelectedProduct),
+                UnitCost = ResolveCurrentUnitCost(SelectedProduct),
+                ProductRecipeId = SelectedProduct.CurrentProductRecipeId,
+                ProductPriceId = SelectedProduct.CurrentProductPriceId,
+                CostCalculatedAt = DateTime.UtcNow,
                 Quantity = 1
             });
             RefreshItemDiscounts();
@@ -645,7 +784,9 @@ namespace SmartOrder.Modules.Orders.ViewModels
                 .Where(order => !IsCompletedOrCancelled(order))
                 .Select(order =>
                 {
-                    var customerName = order.CustomerId.HasValue && customersById.TryGetValue(order.CustomerId.Value, out var customer)
+                    var customerName = order.IsInternalProduction
+                        ? "Produccion del local"
+                        : order.CustomerId.HasValue && customersById.TryGetValue(order.CustomerId.Value, out var customer)
                         ? customer.FullName
                         : "Cliente no encontrado";
                     var deliveryDate = ToLocalDisplayDate(order.DeliveryDate);
@@ -685,11 +826,15 @@ namespace SmartOrder.Modules.Orders.ViewModels
             DeliveryDate = ToLocalDisplayDate(order.DeliveryDate);
             DeliveryTime = ToLocalDisplayTime(order.DeliveryDate);
             Comments = order.Comments ?? string.Empty;
+            IsInternalProduction = order.IsInternalProduction;
             SelectedCustomer = Customers.FirstOrDefault(customer => customer.CustomerId == order.CustomerId);
             SelectedOrderStatus = FindOrCreateOrderStatus(order.OrderStatusCode);
             SelectedPaymentStatus = FindOrCreatePaymentStatus(order.PaymentStatusCode);
             SelectedPaymentMethod = PaymentMethods.FirstOrDefault(method => CodesEqual(method.Code, order.PaymentMethod));
-            await ApplyOrderDiscountsAsync(order);
+            if (!IsInternalProduction)
+            {
+                await ApplyOrderDiscountsAsync(order);
+            }
 
             OnPropertyChanged(nameof(OrderDate));
             OnPropertyChanged(nameof(ProductionStartDate));
@@ -719,7 +864,11 @@ namespace SmartOrder.Modules.Orders.ViewModels
                     CategoryId = orderProduct.Product!.CategoryId,
                     CategoryName = ResolveCategoryName(orderProduct.Product!.CategoryId),
                     ProductName = orderProduct.Product.Name,
-                    Price = orderProduct.OrderItem.UnitPrice,
+                    Price = orderProduct.OrderItem.UnitPrice > 0 ? orderProduct.OrderItem.UnitPrice : orderProduct.Product.SalePrice,
+                    UnitCost = orderProduct.OrderItem.UnitCost,
+                    ProductRecipeId = orderProduct.OrderItem.ProductRecipeId,
+                    ProductPriceId = orderProduct.OrderItem.ProductPriceId,
+                    CostCalculatedAt = orderProduct.OrderItem.CostCalculatedAt,
                     DiscountPerUnit = orderProduct.OrderItem.DiscountPerUnit ?? 0,
                     Quantity = orderProduct.OrderItem.Quantity
                 });
@@ -767,7 +916,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
                     OrderId = _editingOrderId ?? 0,
                     BranchId = _currentBranchId,
                     UserId = _defaultUserId,
-                    CustomerId = SelectedCustomer!.CustomerId,
+                    CustomerId = IsInternalProduction ? null : SelectedCustomer!.CustomerId,
                     Pieces = TotalProductQuantity,
                     DiscountAmount = DiscountAmount,
                     TotalAmount = Total,
@@ -775,20 +924,29 @@ namespace SmartOrder.Modules.Orders.ViewModels
                     ProductionEndDate = ToUtcFromLocalDate(ProductionEndDate),
                     DeliveryDate = ToUtcFromLocalDateTime(DeliveryDate, DeliveryTime),
                     OrderStatusCode = SelectedOrderStatus!.OrderStatusCode,
-                    PaymentStatusCode = SelectedPaymentStatus!.PaymentStatusCode,
-                    PaymentMethod = SelectedPaymentMethod!.Code,
+                    PaymentStatusCode = IsInternalProduction
+                        ? OrderCatalog.NotApplicablePaymentStatusCode
+                        : SelectedPaymentStatus!.PaymentStatusCode,
+                    PaymentMethod = IsInternalProduction
+                        ? OrderCatalog.InternalPaymentMethodCode
+                        : SelectedPaymentMethod!.Code,
                     SalesChannel = OrderCatalog.CustomOrderSalesChannelCode,
                     Comments = string.IsNullOrWhiteSpace(Comments) ? null : Comments.Trim(),
                     IsDirectSale = false,
+                    IsInternalProduction = IsInternalProduction,
                     CreatedAt = IsEditingOrder ? _editingCreatedAtUtc : DateTime.UtcNow,
                     UpdatedAt = IsEditingOrder ? DateTime.UtcNow : null,
                     OrderItems = OrderItems.Select(item => new OrderItemDto
                     {
                         ProductId = item.ProductId,
                         Quantity = item.Quantity,
-                        UnitPrice = item.Price,
-                        DiscountPerUnit = item.DiscountPerUnit,
-                        DiscountAmount = item.DiscountAmount
+                        UnitPrice = IsInternalProduction ? 0 : item.Price,
+                        UnitCost = item.UnitCost,
+                        DiscountPerUnit = IsInternalProduction ? 0 : item.DiscountPerUnit,
+                        DiscountAmount = IsInternalProduction ? 0 : item.DiscountAmount,
+                        ProductRecipeId = item.ProductRecipeId,
+                        ProductPriceId = item.ProductPriceId,
+                        CostCalculatedAt = item.CostCalculatedAt
                     }).ToList()
                 };
 
@@ -809,27 +967,30 @@ namespace SmartOrder.Modules.Orders.ViewModels
                         Type = updated ? AppMessageType.Success : AppMessageType.Error,
                         Title = updated ? "Pedido actualizado" : "No se pudo actualizar",
                         Message = updated
-                            ? $"El pedido con folio #{order.OrderId} se actualizo correctamente."
+                            ? BuildCostingSaveMessage($"El pedido con folio #{order.OrderId} se actualizo correctamente.")
                             : $"No fue posible actualizar el pedido #{order.OrderId}."
                     });
 
                     if (updated)
                     {
                         ResetForm();
+                        await ReturnToOrderListAsync();
                     }
                 }
                 else
                 {
                     var id = await _orderService.CreateAsync(order);
-                    if (id.HasValue)
+                    var newOrderId = id.GetValueOrDefault();
+                    if (newOrderId > 0)
                     {
                         await AppMessageService.ShowAsync(new AppMessageOptions
                         {
                             Type = AppMessageType.Success,
                             Title = "Pedido registrado",
-                            Message = $"El pedido se guardo correctamente con el folio #{id.Value}."
+                            Message = BuildCostingSaveMessage($"El pedido se guardo correctamente con el folio #{newOrderId}.")
                         });
                         ResetForm();
+                        await ReturnToOrderListAsync();
                     }
                     else
                     {
@@ -866,13 +1027,13 @@ namespace SmartOrder.Modules.Orders.ViewModels
                 return false;
             }
 
-            if (SelectedCustomer == null)
+            if (!IsInternalProduction && SelectedCustomer == null)
             {
                 message = "Selecciona el cliente al que pertenece el pedido.";
                 return false;
             }
 
-            if (SelectedOrderStatus == null || SelectedPaymentStatus == null || SelectedPaymentMethod == null)
+            if (SelectedOrderStatus == null || (!IsInternalProduction && (SelectedPaymentStatus == null || SelectedPaymentMethod == null)))
             {
                 message = "Selecciona estatus del pedido, estatus del pago y metodo de pago.";
                 return false;
@@ -912,6 +1073,7 @@ namespace SmartOrder.Modules.Orders.ViewModels
             SelectedOrderStatus = null;
             SelectedPaymentStatus = null;
             SelectedPaymentMethod = null;
+            IsInternalProduction = false;
             _selectedDiscountIds.Clear();
             OnPropertyChanged(nameof(DiscountSelectionSummary));
             OnPropertyChanged(nameof(OrderDate));
@@ -922,11 +1084,24 @@ namespace SmartOrder.Modules.Orders.ViewModels
             RefreshOrderState();
         }
 
-        private void CancelEdit()
+        private async Task CancelEditAsync()
         {
             if (CanCancelEdit)
             {
                 ResetForm();
+                await ReturnToOrderListAsync();
+            }
+        }
+
+        private static async Task ReturnToOrderListAsync()
+        {
+            try
+            {
+                await Microsoft.Maui.Controls.Shell.Current.GoToAsync("//OrderListPage");
+            }
+            catch (Exception ex)
+            {
+                FileErrorLogger.Log("OrderFormViewModel.ReturnToOrderListAsync", ex);
             }
         }
 
@@ -998,8 +1173,35 @@ namespace SmartOrder.Modules.Orders.ViewModels
             }
         }
 
+        private static decimal ResolveCurrentSalePrice(ProductDto product)
+        {
+            return product.CurrentSalePrice.GetValueOrDefault(product.SalePrice);
+        }
+
+        private static decimal ResolveCurrentUnitCost(ProductDto product)
+        {
+            return product.CurrentUnitCost.GetValueOrDefault(0);
+        }
+
+        private bool HasItemsWithoutCost()
+        {
+            return OrderItems.Any(item => item.UnitCost <= 0 || !item.ProductRecipeId.HasValue);
+        }
+
+        private string BuildCostingSaveMessage(string baseMessage)
+        {
+            return HasItemsWithoutCost()
+                ? $"{baseMessage} Hay productos sin costo configurado; se guardaron con costo $0."
+                : baseMessage;
+        }
+
         private async Task SelectDiscountsAsync()
         {
+            if (IsInternalProduction)
+            {
+                return;
+            }
+
             _skipNextCatalogRefreshOnAppearing = true;
             var selectedIds = await AppChecklistService.ShowAsync(
                 "Selecciona descuentos",
@@ -1030,6 +1232,11 @@ namespace SmartOrder.Modules.Orders.ViewModels
 
         private IEnumerable<DiscountRuleDto> GetSelectedDiscounts()
         {
+            if (IsInternalProduction)
+            {
+                return Enumerable.Empty<DiscountRuleDto>();
+            }
+
             return Discounts.Where(discount => _selectedDiscountIds.Contains(discount.DiscountRuleId));
         }
 

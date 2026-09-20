@@ -1,0 +1,217 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Configuration.Pages.CostItemFormPage"
+             Title="Concepto"
+             BackgroundColor="#F4F7FB">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,14,18,18"
+                             Spacing="0">
+            <Frame BackgroundColor="#12344D"
+                   BorderColor="#12344D"
+                   CornerRadius="18"
+                   Padding="14"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="2">
+                    <Label x:Name="PageTitleLabel"
+                           Text="Nuevo concepto"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Define el concepto, su costo vigente y consulta su historial"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Datos del concepto"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Tipo de concepto" FontSize="13" TextColor="#627D98" />
+                            <Picker x:Name="TypePicker" HeightRequest="48" SelectedIndexChanged="OnTypeChanged" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Unidad" FontSize="13" TextColor="#627D98" />
+                            <Picker x:Name="UnitPicker" HeightRequest="48" SelectedIndexChanged="OnUnitChanged" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Nombre"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Entry x:Name="NameEntry"
+                               Placeholder="Nombre del concepto" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Descripcion"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Editor x:Name="DescriptionEditor"
+                                Placeholder="Descripcion opcional"
+                                AutoSize="TextChanges"
+                                HeightRequest="90" />
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+                        <Switch x:Name="IsActiveSwitch"
+                                IsToggled="True"
+                                VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="2">
+                            <Label Text="Concepto activo"
+                                   FontAttributes="Bold"
+                                   TextColor="#102A43" />
+                            <Label Text="Desactivalo si ya no debe usarse en nuevas recetas."
+                                   FontSize="12"
+                                   TextColor="#627D98" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="#FFF9E8"
+                   BorderColor="#F7D794"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Costo vigente"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Presentacion"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Entry x:Name="PresentationEntry"
+                               Placeholder="Ej. Costal 20 kg, caja, paquete" />
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*,*"
+                          ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="6">
+                            <Label x:Name="QuantityLabel" Text="Cantidad de la presentacion"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Entry x:Name="QuantityEntry"
+                                   Placeholder="0"
+                                   Keyboard="Numeric" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="6">
+                            <Label Text="Costo de presentacion"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Entry x:Name="CostEntry"
+                                   Placeholder="0.00"
+                                   Keyboard="Numeric" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Vigente desde"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <DatePicker x:Name="EffectiveFromPicker" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Notas del costo"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Editor x:Name="CostNotesEditor"
+                                Placeholder="Notas opcionales del costo"
+                                AutoSize="TextChanges"
+                                HeightRequest="80" />
+                    </VerticalStackLayout>
+
+                    <Label x:Name="UnitCostLabel"
+                           Text="Costo unitario: $0.000000"
+                           FontAttributes="Bold"
+                           TextColor="#0B6E4F" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Historial de costos"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <CollectionView x:Name="CostHistoryList"
+                                    HeightRequest="220">
+                        <CollectionView.EmptyView>
+                            <Label Text="Sin historial de costos"
+                                   TextColor="#627D98" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto"
+                                      Padding="0,8"
+                                      ColumnSpacing="10">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding PresentationSummary}"
+                                               FontAttributes="Bold"
+                                               TextColor="#102A43" />
+                                        <Label Text="{Binding DateSummary}"
+                                               FontSize="12"
+                                               TextColor="#627D98" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding CostSummary}"
+                                           FontAttributes="Bold"
+                                           TextColor="#0B6E4F" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12"
+                  Margin="0,12,0,0">
+                <Button x:Name="SaveButton" Text="Guardar concepto"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="#0B6E4F"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="50"
+                        FontAttributes="Bold" />
+
+                <Button Grid.Column="1"
+                        Text="Regresar"
+                        Clicked="OnBackClicked"
+                        BackgroundColor="#D9E2EC"
+                        TextColor="#102A43"
+                        CornerRadius="14"
+                        HeightRequest="50"
+                        FontAttributes="Bold"
+                        Padding="18,0" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

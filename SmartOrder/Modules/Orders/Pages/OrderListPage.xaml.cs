@@ -247,7 +247,10 @@ public partial class OrderListPage : ContentPage, INotifyPropertyChanged
             _orderStatuses = orderStatuses;
             _paymentStatuses = paymentStatuses;
             OrderId = summary.OrderId;
-            CustomerName = NormalizeText(summary.CustomerName, "Cliente no encontrado");
+            IsInternalProduction = summary.IsInternalProduction;
+            CustomerName = IsInternalProduction
+                ? "Produccion del local"
+                : NormalizeText(summary.CustomerName, "Cliente no encontrado");
             Pieces = summary.Pieces;
             ProductSummary = NormalizeText(summary.ProductSummary, "Sin productos");
             CommentsSummary = NormalizeText(summary.Comments, "Sin comentarios");
@@ -266,7 +269,9 @@ public partial class OrderListPage : ContentPage, INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public int OrderId { get; }
+        public bool IsInternalProduction { get; }
         public string CustomerName { get; }
+        public string OrderTypeText => IsInternalProduction ? "Produccion del local" : "Pedido de cliente";
         public int Pieces { get; }
         public string ProductSummary { get; }
         public string CommentsSummary { get; }

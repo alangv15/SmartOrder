@@ -5,6 +5,7 @@ using SmartOrder.Business.Orders.Services;
 using SmartOrder.Business.Reports.Services;
 using SmartOrder.Business.Security.Services;
 using SmartOrder.Modules.Security.Services;
+using SmartOrder.Shared.Printing;
 
 namespace SmartOrder
 {
@@ -30,10 +31,12 @@ namespace SmartOrder
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<BranchService>();
             builder.Services.AddSingleton<CategoryService>();
+            builder.Services.AddSingleton<CostingService>();
             builder.Services.AddSingleton<CustomerService>();
             builder.Services.AddSingleton<DiscountLimitRuleService>();
             builder.Services.AddSingleton<DiscountRuleService>();
             builder.Services.AddSingleton<DailySalesReportService>();
+            builder.Services.AddSingleton<MonthlyProfitReportService>();
             builder.Services.AddSingleton<SalesSummaryReportService>();
             builder.Services.AddSingleton<OrderService>();
             builder.Services.AddSingleton<OrderStatusService>();
@@ -43,14 +46,22 @@ namespace SmartOrder
             builder.Services.AddSingleton<SecurityAccessService>();
             builder.Services.AddSingleton<SessionService>();
             builder.Services.AddSingleton<UserManagementService>();
+            builder.Services.AddSingleton<EscPosTicketFormatter>();
+            builder.Services.AddSingleton<ITicketPortWriter, WindowsComTicketPortWriter>();
+            builder.Services.AddSingleton<WindowsPrinterTicketWriter>();
+            builder.Services.AddSingleton<IUserPrinterSettingsService, UserPrinterSettingsService>();
+            builder.Services.AddSingleton<IWindowsPrinterDiscoveryService, WindowsPrinterDiscoveryService>();
+            builder.Services.AddSingleton<ITicketPrinterService, TicketPrinterService>();
 
             builder.Services.AddHttpClient<AuthService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<BranchService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<CategoryService>(client => ConfigureApiClient(client, apiUrl));
+            builder.Services.AddHttpClient<CostingService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<CustomerService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<DiscountLimitRuleService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<DiscountRuleService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<DailySalesReportService>(client => ConfigureApiClient(client, apiUrl));
+            builder.Services.AddHttpClient<MonthlyProfitReportService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<SalesSummaryReportService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<OrderService>(client => ConfigureApiClient(client, apiUrl));
             builder.Services.AddHttpClient<OrderStatusService>(client => ConfigureApiClient(client, apiUrl));

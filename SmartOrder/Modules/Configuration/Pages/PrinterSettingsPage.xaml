@@ -1,0 +1,199 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Configuration.Pages.PrinterSettingsPage"
+             Title="Impresora"
+             BackgroundColor="#F4F7FB">
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="18,14,18,18" Spacing="14">
+            <Frame BackgroundColor="#12344D"
+                   BorderColor="#12344D"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Configuración de impresora"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Define cómo se imprimen los tickets en este equipo."
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#B7DBC9"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Configuración actual"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#102A43" />
+                        <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="6">
+                            <Label Grid.Row="0"
+                                   Grid.Column="0"
+                                   Text="Conexión"
+                                   FontSize="14"
+                                   TextColor="#627D98" />
+                            <Label Grid.Row="0"
+                                   Grid.Column="1"
+                                   Text="{Binding CurrentConnectionText}"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="#0B6E4F" />
+                            <Label Grid.Row="1"
+                                   Grid.Column="0"
+                                   Text="Dispositivo"
+                                   FontSize="14"
+                                   TextColor="#627D98" />
+                            <Label Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding CurrentDeviceText}"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="#102A43" />
+                        </Grid>
+                        <Label Text="{Binding StatusText}"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1"
+                            Text="Actualizar"
+                            Clicked="OnRefreshClicked"
+                            BackgroundColor="#E8F5EF"
+                            TextColor="#0B6E4F"
+                            CornerRadius="14"
+                            HeightRequest="48"
+                            FontAttributes="Bold"
+                            VerticalOptions="Start" />
+                </Grid>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Selecciona el tipo de conexión"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <Picker ItemsSource="{Binding ConnectionOptions}"
+                            SelectedItem="{Binding SelectedConnectionType}"
+                            ItemDisplayBinding="{Binding Label}"
+                            HeightRequest="46"
+                            BackgroundColor="#F8FBFF"
+                            TextColor="#102A43"
+                            TitleColor="#627D98" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#B7DBC9"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   IsVisible="{Binding IsWindowsPrinterSelected}"
+                   IsEnabled="{Binding IsWindowsPrinterSelected}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Configuración USB"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <Label Text="Usa una impresora instalada en Windows. Para impresoras ESC/POS USB, puedes crear la cola SmartOrder Ticket USB."
+                           FontSize="14"
+                           TextColor="#627D98" />
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Impresora Windows / USB"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Picker ItemsSource="{Binding AvailablePrinters}"
+                                SelectedItem="{Binding SelectedPrinter}"
+                                ItemDisplayBinding="{Binding Name}"
+                                HeightRequest="58"
+                                VerticalOptions="Fill"
+                                BackgroundColor="#F8FBFF"
+                                TextColor="#102A43" />
+                    </VerticalStackLayout>
+                    <Button Text="Detectar y configurar USB"
+                            Clicked="OnConfigureUsbClicked"
+                            BackgroundColor="#E8F5EF"
+                            TextColor="#0B6E4F"
+                            CornerRadius="14"
+                            HeightRequest="48"
+                            FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   IsVisible="{Binding IsSerialSelected}"
+                   IsEnabled="{Binding IsSerialSelected}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Configuración Bluetooth"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <Label Text="Usa el puerto COM que Windows asignó al emparejar la impresora por Bluetooth."
+                           FontSize="14"
+                           TextColor="#627D98" />
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Puerto Bluetooth / COM"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Picker ItemsSource="{Binding AvailableComPorts}"
+                                SelectedItem="{Binding SelectedComPort}"
+                                HeightRequest="58"
+                                VerticalOptions="Fill"
+                                BackgroundColor="#F8FBFF"
+                                TextColor="#102A43" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Acciones"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Button Grid.Column="0"
+                                Text="Guardar"
+                                Clicked="OnSaveClicked"
+                                BackgroundColor="#0B6E4F"
+                                TextColor="White"
+                                CornerRadius="14"
+                                HeightRequest="50"
+                                FontAttributes="Bold" />
+                        <Button Grid.Column="1"
+                                Text="Imprimir prueba"
+                                Clicked="OnTestClicked"
+                                BackgroundColor="#FFF4D6"
+                                TextColor="#7C5E10"
+                                CornerRadius="14"
+                                HeightRequest="50"
+                                FontAttributes="Bold" />
+                    </Grid>
+                    <Label Text="{Binding SettingsFilePath}"
+                           FontSize="12"
+                           TextColor="#627D98"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Frame>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

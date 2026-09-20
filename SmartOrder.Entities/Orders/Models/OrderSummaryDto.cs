@@ -12,6 +12,7 @@ namespace SmartOrder.Entities.Orders.Models
         public DateTime? DeliveryDate { get; set; }
         public string OrderStatusCode { get; set; } = string.Empty;
         public string PaymentStatusCode { get; set; } = string.Empty;
+        public bool IsInternalProduction { get; set; }
         public string ProductSummary { get; set; } = string.Empty;
         public string? Comments { get; set; }
     }

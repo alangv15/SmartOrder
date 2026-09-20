@@ -6,6 +6,7 @@
        xmlns:orderPages="clr-namespace:SmartOrder.Modules.Orders.Pages"
        xmlns:reportPages="clr-namespace:SmartOrder.Modules.Reports.Pages"
        xmlns:securityPages="clr-namespace:SmartOrder.Modules.Security.Pages"
+       xmlns:shared="clr-namespace:SmartOrder.Shared"
        x:Class="SmartOrder.Shell.AppShell"
        Shell.FlyoutBehavior="Flyout"
        Shell.FlyoutBackgroundColor="#F4F7FB"
@@ -49,7 +50,7 @@
                        FontSize="28"
                        FontAttributes="Bold"
                        TextColor="White" />
-                <Label Text="Punto de venta · V1.0.2"
+                <Label Text="{x:Static shared:AppVersionInfo.PointOfSaleDisplay}"
                        FontSize="14"
                        TextColor="#D9EAF7" />
             </VerticalStackLayout>
@@ -155,6 +156,19 @@
                                        FontAttributes="Bold"
                                        TextColor="#255E7A" />
                             </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnMonthlyProfitReportTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanViewSalesSummaryReport" />
+                                </Border.IsVisible>
+                                <Label Text="Rentabilidad mensual"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#255E7A" />
+                            </Border>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Border>
@@ -223,6 +237,62 @@
                                        TextColor="#0B6E4F" />
                             </Border>
 
+                            <Label Text="Costeo"
+                                   Margin="22,10,0,4"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#627D98"
+                                   IsVisible="{Binding CanManageProducts}" />
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#FFF9E8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCostItemsTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageProducts" />
+                                </Border.IsVisible>
+                                <Label Text="Insumos y servicios"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#8A5A00" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#FFF9E8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRecipesTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageProducts" />
+                                </Border.IsVisible>
+                                <Label Text="Recetas de producto"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#8A5A00" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#FFF9E8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBaseRecipesTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageProducts" />
+                                </Border.IsVisible>
+                                <Label Text="Recetas base" FontSize="15" FontAttributes="Bold" TextColor="#8A5A00" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#FFF9E8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnProductCostingIssuesTapped" />
+                                </Border.GestureRecognizers>
+                                <Border.IsVisible>
+                                    <Binding Path="CanManageProducts" />
+                                </Border.IsVisible>
+                                <Label Text="Productos sin costeo"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#8A5A00" />
+                            </Border>
+
                             <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#E8F5EF">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnCustomersTapped" />
@@ -231,6 +301,16 @@
                                     <Binding Path="CanManageCustomers" />
                                 </Border.IsVisible>
                                 <Label Text="Clientes"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#0B6E4F" />
+                            </Border>
+
+                            <Border Style="{StaticResource FlyoutChildStyle}" BackgroundColor="#E8F5EF">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPrinterSettingsTapped" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Impresora"
                                        FontSize="15"
                                        FontAttributes="Bold"
                                        TextColor="#0B6E4F" />
@@ -324,6 +404,9 @@
     <ShellContent Route="SalesSummaryReportPage"
                   FlyoutItemIsVisible="False"
                   ContentTemplate="{DataTemplate reportPages:SalesSummaryReportPage}" />
+    <ShellContent Route="MonthlyProfitReportPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate reportPages:MonthlyProfitReportPage}" />
     <ShellContent Route="CategoryListPage"
                   FlyoutItemIsVisible="False"
                   ContentTemplate="{DataTemplate configPages:CategoryListPage}" />
@@ -333,6 +416,21 @@
     <ShellContent Route="ProductListPage"
                   FlyoutItemIsVisible="False"
                   ContentTemplate="{DataTemplate configPages:ProductListPage}" />
+    <ShellContent Route="CostItemListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:CostItemListPage}" />
+    <ShellContent Route="RecipeListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:RecipeListPage}" />
+    <ShellContent Route="BaseRecipeListPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:BaseRecipeListPage}" />
+    <ShellContent Route="ProductCostingIssuesPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:ProductCostingIssuesPage}" />
+    <ShellContent Route="PrinterSettingsPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate configPages:PrinterSettingsPage}" />
     <ShellContent Route="CustomerListPage"
                   FlyoutItemIsVisible="False"
                   ContentTemplate="{DataTemplate configPages:CustomerListPage}" />

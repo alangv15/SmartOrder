@@ -151,6 +151,10 @@
                                            FontAttributes="Bold"
                                            TextColor="#102A43"
                                            LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding OrderTypeText}"
+                                           FontSize="11"
+                                           TextColor="#0B6E4F"
+                                           LineBreakMode="TailTruncation" />
                                 </VerticalStackLayout>
 
                                 <VerticalStackLayout Grid.Column="2"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shared="clr-namespace:SmartOrder.Shared"
              x:Class="SmartOrder.Modules.Security.Pages.LoginPage"
              Title="Iniciar sesión"
              Shell.NavBarIsVisible="False"
@@ -37,7 +38,7 @@
                                FontSize="34"
                                FontAttributes="Bold"
                                TextColor="#12344D" />
-                        <Label Text="Punto de venta · V1.0.0"
+                        <Label Text="{x:Static shared:AppVersionInfo.PointOfSaleDisplay}"
                                FontSize="14"
                                TextColor="#627D98" />
                     </VerticalStackLayout>

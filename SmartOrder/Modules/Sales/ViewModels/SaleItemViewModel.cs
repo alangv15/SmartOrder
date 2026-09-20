@@ -13,6 +13,11 @@ namespace SmartOrder.Modules.Sales.ViewModels
         public string CategoryName { get; set; } = "";
         public string ProductName { get; set; } = "";
         public decimal Price { get; set; }
+        public decimal UnitCost { get; set; }
+        public int? ProductRecipeId { get; set; }
+        public int? ProductPriceId { get; set; }
+        public DateTime? CostCalculatedAt { get; set; }
+        public bool HasCurrentCost => ProductRecipeId.HasValue && UnitCost > 0;
         public decimal DiscountPerUnit
         {
             get => _discountPerUnit;

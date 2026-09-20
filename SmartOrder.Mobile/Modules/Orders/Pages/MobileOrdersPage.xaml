@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Mobile.Modules.Orders.Pages.MobileOrdersPage"
+             Title="Pedidos">
+    <Grid RowDefinitions="Auto,*" Padding="14" RowSpacing="12">
+        <Border BackgroundColor="#E8F5EF"
+                StrokeThickness="0"
+                Padding="16"
+                StrokeShape="RoundRectangle 18">
+            <VerticalStackLayout Spacing="12">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Pedidos"
+                               FontSize="26"
+                               FontAttributes="Bold" />
+                        <Label Text="{Binding TotalRecordsText}"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1"
+                            Text="+ Nuevo"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding NewOrderCommand}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Fecha inicial" FontSize="12" TextColor="#627D98" />
+                        <DatePicker Date="{Binding StartDate}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Fecha final" FontSize="12" TextColor="#627D98" />
+                        <DatePicker Date="{Binding EndDate}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Button Text="Actualizar"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding RefreshCommand}" />
+            </VerticalStackLayout>
+        </Border>
+
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsLoading}"
+                     Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Spacing="10">
+                    <Border BackgroundColor="#FCECEC"
+                            StrokeThickness="0"
+                            Padding="12"
+                            IsVisible="{Binding HasMessage}"
+                            StrokeShape="RoundRectangle 14">
+                        <Label Text="{Binding Message}" TextColor="#9B1C1C" />
+                    </Border>
+
+                    <CollectionView ItemsSource="{Binding Orders}"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="Sin pedidos en el rango seleccionado."
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="#627D98"
+                                   Margin="0,40,0,0" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="White"
+                                        StrokeThickness="0"
+                                        Padding="14"
+                                        Margin="0,0,0,10"
+                                        StrokeShape="RoundRectangle 18">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Text="{Binding FolioText}"
+                                                   FontSize="18"
+                                                   FontAttributes="Bold" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding PiecesText}"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#0B6E4F" />
+                                        </Grid>
+
+                                        <Label Text="{Binding CustomerName}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="#1B587C" />
+                                        <Label Text="{Binding OrderTypeText}"
+                                               FontSize="12"
+                                               TextColor="#0B6E4F" />
+
+                                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+                                            <Label Text="{Binding ProductionStartText, StringFormat='Inicio: {0}'}" FontSize="12" TextColor="#627D98" />
+                                            <Label Grid.Column="1" Text="{Binding ProductionEndText, StringFormat='Fin: {0}'}" FontSize="12" TextColor="#627D98" />
+                                            <Label Grid.Row="1" Text="{Binding DeliveryDateText, StringFormat='Entrega: {0}'}" FontSize="12" TextColor="#627D98" />
+                                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding DeliveryTimeText, StringFormat='Hora: {0}'}" FontSize="12" TextColor="#627D98" />
+                                        </Grid>
+
+                                        <Label Text="{Binding ProductSummary}"
+                                               FontSize="13"
+                                               LineBreakMode="WordWrap" />
+                                        <Label Text="{Binding CommentsSummary}"
+                                               FontSize="12"
+                                               TextColor="#627D98"
+                                               LineBreakMode="WordWrap" />
+
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                            <VerticalStackLayout Spacing="4">
+                                                <Label Text="Estatus" FontSize="12" TextColor="#627D98" />
+                                                <Picker ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OrderStatuses}"
+                                                        ItemDisplayBinding="{Binding DisplayName}"
+                                                        SelectedItem="{Binding SelectedOrderStatus}"
+                                                        SelectedIndexChanged="OnStatusPickerChanged" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                                <Label Text="Pago" FontSize="12" TextColor="#627D98" />
+                                                <Picker ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.PaymentStatuses}"
+                                                        ItemDisplayBinding="{Binding DisplayName}"
+                                                        SelectedItem="{Binding SelectedPaymentStatus}"
+                                                        SelectedIndexChanged="OnStatusPickerChanged" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+
+                                        <Button Text="Editar pedido"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Clicked="OnEditOrderClicked" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

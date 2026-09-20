@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:orders="clr-namespace:SmartOrder.Mobile.Modules.Orders.Pages"
+       x:Class="SmartOrder.Mobile.AppShell"
+       Title="SmartOrder Mobile"
+       Shell.FlyoutBehavior="Flyout"
+       Shell.FlyoutBackgroundColor="#F4F7FB"
+       Shell.ForegroundColor="#12344D"
+       Shell.TitleColor="#12344D"
+       Shell.UnselectedColor="#627D98"
+       Shell.NavBarHasShadow="False">
+
+    <Shell.FlyoutHeader>
+        <Grid Padding="22,26,22,22">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#12344D" Offset="0.0" />
+                    <GradientStop Color="#1B587C" Offset="0.55" />
+                    <GradientStop Color="#0B6E4F" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            <VerticalStackLayout Spacing="4">
+                <Label Text="SmartOrder"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="White" />
+                <Label Text="Pedidos móvil"
+                       FontSize="14"
+                       TextColor="#D9EAF7" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <Shell.FlyoutContent>
+        <ScrollView>
+            <VerticalStackLayout Padding="18,18,18,10" Spacing="0">
+                <Border BackgroundColor="#E8F5EF"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        StrokeShape="RoundRectangle 20">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnOrdersTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Pedidos"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="#0B6E4F" />
+                        <Label Grid.Column="1"
+                               Text="Ir"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#12344D"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        StrokeShape="RoundRectangle 20">
+                    <Label Text="Ventas - próximamente"
+                           FontSize="16"
+                           TextColor="#627D98" />
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        StrokeShape="RoundRectangle 20">
+                    <Label Text="Reportes - próximamente"
+                           FontSize="16"
+                           TextColor="#627D98" />
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        StrokeShape="RoundRectangle 20">
+                    <Label Text="Configuración - próximamente"
+                           FontSize="16"
+                           TextColor="#627D98" />
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        Margin="0,0,0,12"
+                        StrokeShape="RoundRectangle 20">
+                    <Label Text="Seguridad - próximamente"
+                           FontSize="16"
+                           TextColor="#627D98" />
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Shell.FlyoutContent>
+
+    <ShellContent Route="MobileOrdersPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate orders:MobileOrdersPage}" />
+
+    <ShellContent Route="MobileOrderFormPage"
+                  FlyoutItemIsVisible="False"
+                  ContentTemplate="{DataTemplate orders:MobileOrderFormPage}" />
+</Shell>

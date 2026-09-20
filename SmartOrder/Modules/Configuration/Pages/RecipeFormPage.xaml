@@ -1,0 +1,256 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Configuration.Pages.RecipeFormPage"
+             Title="Receta"
+             BackgroundColor="#F4F7FB">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18,14,18,18"
+                             Spacing="0">
+            <Frame BackgroundColor="#12344D"
+                   BorderColor="#12344D"
+                   CornerRadius="18"
+                   Padding="14"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="2">
+                    <Label x:Name="HeaderLabel" Text="Receta de producto"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label x:Name="SubtitleLabel" Text="Bases, ingredientes, empaque y servicios por unidad de producto"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                    <Button x:Name="RetryLoadButton" Text="Reintentar carga" IsVisible="False" Clicked="OnRetryLoadClicked" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="14">
+                    <Label x:Name="GeneralSectionLabel" Text="Producto y vigencia"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+
+                    <Grid ColumnDefinitions="2*,*"
+                          ColumnSpacing="12">
+                        <VerticalStackLayout x:Name="ProductSection" Grid.Column="0"
+                                             Spacing="6">
+                            <Label Text="Producto"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Picker x:Name="ProductPicker" />
+                        </VerticalStackLayout>
+
+                        <Grid x:Name="BaseIdentitySection" IsVisible="False" ColumnDefinitions="2*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Nombre de la receta base" FontSize="13" TextColor="#627D98" />
+                                <Entry x:Name="BaseNameEntry" MaxLength="100" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Código" FontSize="13" TextColor="#627D98" />
+                                <Entry x:Name="BaseCodeEntry" MaxLength="50" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="6">
+                            <Label Text="Vigente desde"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <DatePicker x:Name="EffectiveFromPicker" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <HorizontalStackLayout x:Name="BaseActiveSection" IsVisible="False" Spacing="8">
+                        <CheckBox x:Name="BaseActiveCheckBox" IsChecked="True" />
+                        <Label Text="Receta base activa" VerticalOptions="Center" TextColor="#102A43" />
+                    </HorizontalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Notas de la receta"
+                               FontSize="13"
+                               TextColor="#627D98" />
+                        <Editor x:Name="NotesEditor"
+                                MaxLength="500"
+                                Placeholder="Notas opcionales de la receta"
+                                AutoSize="TextChanges"
+                                HeightRequest="80" />
+                    </VerticalStackLayout>
+
+                    <Label x:Name="RecipeCostLabel"
+                           Text="Costo receta: $0.00"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#0B6E4F" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame x:Name="BasesSection" BackgroundColor="#E8F5EF" BorderColor="#B7DDCF"
+                   CornerRadius="18" Padding="16" Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Recetas base" FontSize="18" FontAttributes="Bold" TextColor="#102A43" />
+                    <Grid ColumnDefinitions="2*,*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Receta base y versión" FontSize="13" TextColor="#627D98" />
+                            <Picker x:Name="BaseRecipePicker" HeightRequest="50" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Factor de uso" FontSize="13" TextColor="#627D98" />
+                            <Entry x:Name="MultiplierEntry" Text="1" Keyboard="Numeric" HeightRequest="50" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2" Text="Agregar base" Clicked="OnAddBaseClicked" HeightRequest="50"
+                                VerticalOptions="End" BackgroundColor="#0B6E4F" TextColor="White" CornerRadius="12" />
+                    </Grid>
+                    <CollectionView x:Name="RecipeBasesList" HeightRequest="180">
+                        <CollectionView.EmptyView>
+                            <Label Text="Sin recetas base agregadas" TextColor="#627D98" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" Padding="0,8">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="#102A43" />
+                                        <Label Text="{Binding DetailSummary}" FontSize="12" TextColor="#627D98" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding CostSummary}" VerticalOptions="Center" TextColor="#0B6E4F" />
+                                    <Button Grid.Column="2" Text="Quitar" Command="{Binding RemoveCommand}" BackgroundColor="#D64545" TextColor="White" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="#EAF2FB"
+                   BorderColor="#BFD6EA"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True"
+                   Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="14">
+                    <Label x:Name="CostItemsSectionLabel" Text="Agregar concepto adicional"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+
+                    <VerticalStackLayout x:Name="CostTypeSection" Spacing="6">
+                        <Label Text="Tipo de concepto" FontSize="13" TextColor="#627D98" />
+                        <Picker x:Name="CostTypePicker" HeightRequest="48" SelectedIndexChanged="OnCostTypeChanged" />
+                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="2*,*,Auto"
+                          ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="6">
+                            <Label Text="Concepto"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Picker x:Name="CostItemPicker" HeightRequest="48" SelectedIndexChanged="OnCostItemChanged" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="6">
+                            <Label x:Name="QuantityLabel" Text="Cantidad"
+                                   FontSize="13"
+                                   TextColor="#627D98" />
+                            <Entry x:Name="QuantityEntry"
+                                   Placeholder="0"
+                                   Keyboard="Numeric" />
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="2"
+                                Text="Agregar"
+                                Clicked="OnAddCostItemClicked"
+                                BackgroundColor="#0B6E4F"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                FontAttributes="Bold"
+                                VerticalOptions="End" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   BorderColor="#D9E2EC"
+                   CornerRadius="18"
+                   Padding="16"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label x:Name="ItemsSectionLabel" Text="Conceptos adicionales"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#102A43" />
+                    <CollectionView x:Name="RecipeItemsList"
+                                    IsGrouped="True"
+                                    HeightRequest="260">
+                        <CollectionView.GroupHeaderTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16"
+                                       TextColor="#12344D" BackgroundColor="#EAF2FB" Padding="8" />
+                            </DataTemplate>
+                        </CollectionView.GroupHeaderTemplate>
+                        <CollectionView.EmptyView>
+                            <Label Text="Agrega conceptos a la receta"
+                                   TextColor="#627D98" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto,Auto"
+                                      Padding="0,8"
+                                      ColumnSpacing="10">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding CostItemName}"
+                                               FontAttributes="Bold"
+                                               TextColor="#102A43" />
+                                        <Label Text="{Binding DetailSummary}"
+                                               FontSize="12"
+                                               TextColor="#627D98" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding CostSummary}"
+                                           FontAttributes="Bold"
+                                           TextColor="#0B6E4F"
+                                           VerticalOptions="Center" />
+                                    <Button Grid.Column="2"
+                                            Text="Quitar"
+                                            Command="{Binding RemoveCommand}"
+                                            BackgroundColor="#D64545"
+                                            TextColor="White"
+                                            CornerRadius="10" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12"
+                  Margin="0,12,0,0">
+                <Button x:Name="SaveButton" Text="Guardar receta"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="#0B6E4F"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="50"
+                        FontAttributes="Bold" />
+
+                <Button Grid.Column="1"
+                        Text="Regresar"
+                        Clicked="OnBackClicked"
+                        BackgroundColor="#D9E2EC"
+                        TextColor="#102A43"
+                        CornerRadius="14"
+                        HeightRequest="50"
+                        FontAttributes="Bold"
+                        Padding="18,0" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

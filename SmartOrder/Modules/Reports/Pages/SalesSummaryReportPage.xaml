@@ -37,6 +37,15 @@
             <Setter Property="FontSize" Value="24" />
             <Setter Property="FontAttributes" Value="Bold" />
         </Style>
+
+        <Style x:Key="ExportButtonStyle" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="#0B6E4F" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="MinimumWidthRequest" Value="88" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,Auto,*"
@@ -48,7 +57,7 @@
                BackgroundColor="#12344D"
                BorderColor="#12344D"
                Padding="14">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"
                   ColumnSpacing="12">
                 <VerticalStackLayout Grid.Column="0"
                                      Spacing="2"
@@ -57,7 +66,7 @@
                            FontSize="22"
                            FontAttributes="Bold"
                            TextColor="White" />
-                    <Label Text="Resumen por rango y desglose diario"
+                    <Label Text="Ventas de mostrador y pedidos por rango, con desglose diario"
                            FontSize="13"
                            TextColor="#D9E2EC" />
                 </VerticalStackLayout>
@@ -79,6 +88,12 @@
                             VerticalOptions="Center" />
 
                 <Button Grid.Column="3"
+                        Text="PDF"
+                        Command="{Binding ExportPdfCommand}"
+                        Style="{StaticResource ExportButtonStyle}"
+                        VerticalOptions="Center" />
+
+                <Button Grid.Column="4"
                         Text="&#x21bb;"
                         Command="{Binding LoadSalesCommand}"
                         Style="{StaticResource RefreshButtonStyle}"

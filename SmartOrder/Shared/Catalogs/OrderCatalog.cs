@@ -11,6 +11,8 @@ namespace SmartOrder.Shared.Catalogs
         public const string CustomOrderSalesChannelCode = "Order";
         public const string CashPaymentMethodCode = "Cash";
         public const string CardPaymentMethodCode = "Card";
+        public const string InternalPaymentMethodCode = "Internal";
+        public const string NotApplicablePaymentStatusCode = "NotApplicable";
         public const string MaleCustomerGenderCode = "M";
         public const string FemaleCustomerGenderCode = "F";
         public const string NewCustomerTypeCode = "New";
