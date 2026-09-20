@@ -57,19 +57,37 @@ namespace SmartOrder.Business.Orders.Services
         {
             var result = await _http.PostAsJsonAsync("api/Orders", dto);
             var response = await result.Content.ReadFromJsonAsync<ApiResponse<int>>();
-            return response?.Data;
+
+            if (!result.IsSuccessStatusCode || response?.Success != true || response.Data <= 0)
+            {
+                return null;
+            }
+
+            return response.Data;
         }
 
         public async Task<bool> UpdateAsync(OrderDto dto)
         {
             var result = await _http.PutAsJsonAsync($"api/Orders/{dto.OrderId}", dto);
-            return result.IsSuccessStatusCode;
+            if (!result.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            var response = await result.Content.ReadFromJsonAsync<ApiResponse<object>>();
+            return response?.Success == true;
         }
 
         public async Task<bool> UpdateStatusAsync(int orderId, OrderStatusUpdateDto dto)
         {
             var result = await _http.PatchAsJsonAsync($"api/Orders/custom/{orderId}/status", dto);
-            return result.IsSuccessStatusCode;
+            if (!result.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            var response = await result.Content.ReadFromJsonAsync<ApiResponse<object>>();
+            return response?.Success == true;
         }
 
         public async Task<bool> CancelAsync(int id)

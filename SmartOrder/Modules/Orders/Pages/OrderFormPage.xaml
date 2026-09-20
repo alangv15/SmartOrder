@@ -92,7 +92,7 @@
                BackgroundColor="#12344D"
                BorderColor="#12344D">
             <VerticalStackLayout Spacing="12">
-                <Grid ColumnDefinitions="*,Auto,Auto"
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                       ColumnSpacing="12">
                     <Label Text="Programacion"
                            FontSize="20"
@@ -109,17 +109,47 @@
                             Style="{StaticResource HeaderIconButtonStyle}"
                             FontSize="13"
                             VerticalOptions="Center" />
+                    <Button Grid.Column="3"
+                            Text="Ticket"
+                            Command="{Binding PrintOrderTicketCommand}"
+                            Style="{StaticResource HeaderIconButtonStyle}"
+                            BackgroundColor="#FFF4D6"
+                            TextColor="#7C5E10"
+                            WidthRequest="72"
+                            FontSize="13"
+                            VerticalOptions="Center" />
                 </Grid>
 
-                <Grid ColumnDefinitions="*,24,*,*,*,*"
+                <Grid ColumnDefinitions="*,*,*,*,*,*"
                       ColumnSpacing="12">
                     <VerticalStackLayout Grid.Column="0" Spacing="6" MinimumWidthRequest="0">
                         <Label Text="Cliente" TextColor="#D9E2EC" FontSize="13" />
                         <Picker ItemsSource="{Binding Customers}"
                                 ItemDisplayBinding="{Binding FullName}"
                                 SelectedItem="{Binding SelectedCustomer}"
+                                IsEnabled="{Binding IsRegularCustomerOrder}"
                                 HorizontalOptions="FillAndExpand"
                                 Style="{StaticResource CompactPickerStyle}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="6" MinimumWidthRequest="0">
+                        <Label Text="Tipo" TextColor="#D9E2EC" FontSize="13" />
+                        <Frame BackgroundColor="#E8F5EF"
+                               BorderColor="#B7DBC9"
+                               CornerRadius="14"
+                               Padding="10,2"
+                               HasShadow="False"
+                               HeightRequest="36">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Label Text="Produccion del local"
+                                       FontSize="12"
+                                       TextColor="#0B6E4F"
+                                       VerticalOptions="Center" />
+                                <Switch Grid.Column="1"
+                                        IsToggled="{Binding IsInternalProduction}"
+                                        VerticalOptions="Center" />
+                            </Grid>
+                        </Frame>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="2" Spacing="6" MinimumWidthRequest="0">
@@ -352,6 +382,7 @@
                                     ItemsSource="{Binding PaymentStatuses}"
                                     ItemDisplayBinding="{Binding DisplayName}"
                                     SelectedItem="{Binding SelectedPaymentStatus}"
+                                    IsEnabled="{Binding IsRegularCustomerOrder}"
                                     Style="{StaticResource PickerControlStyle}" />
                         </VerticalStackLayout>
 
@@ -361,6 +392,7 @@
                                     ItemsSource="{Binding PaymentMethods}"
                                     ItemDisplayBinding="{Binding Label}"
                                     SelectedItem="{Binding SelectedPaymentMethod}"
+                                    IsEnabled="{Binding IsRegularCustomerOrder}"
                                     Style="{StaticResource PickerControlStyle}" />
                         </VerticalStackLayout>
 
@@ -368,6 +400,7 @@
                             <Label Text="Descuento" Style="{StaticResource SectionCaptionStyle}" />
                             <Button Text="{Binding DiscountSelectionSummary}"
                                     Command="{Binding SelectDiscountsCommand}"
+                                    IsEnabled="{Binding IsRegularCustomerOrder}"
                                     BackgroundColor="#F8FBFF"
                                     BorderColor="#8FB8A8"
                                     BorderWidth="1"

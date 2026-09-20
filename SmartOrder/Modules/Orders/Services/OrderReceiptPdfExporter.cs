@@ -10,6 +10,7 @@ public sealed record OrderReceiptPdfRequest(
     string? BranchAddress,
     string? BranchPhone,
     string CustomerName,
+    bool IsInternalProduction,
     DateTime DeliveryDate,
     TimeSpan DeliveryTime,
     string? Comments,
@@ -110,10 +111,14 @@ public static class OrderReceiptPdfExporter
 
                 if (lineIndex == 0)
                 {
+                    var unitPrice = request.IsInternalProduction ? 0 : item.Price;
+                    var discountAmount = request.IsInternalProduction ? 0 : item.DiscountAmount;
+                    var lineTotal = request.IsInternalProduction ? 0 : item.Subtotal - item.DiscountAmount;
+
                     DrawText(content, 302, y, item.Quantity.ToString(CultureInfo.InvariantCulture), 9);
-                    DrawText(content, 348, y, Money(item.Price), 9);
-                    DrawText(content, 426, y, Money(item.DiscountAmount), 9);
-                    DrawText(content, 504, y, Money(item.Subtotal - item.DiscountAmount), 9);
+                    DrawText(content, 348, y, Money(unitPrice), 9);
+                    DrawText(content, 426, y, Money(discountAmount), 9);
+                    DrawText(content, 504, y, Money(lineTotal), 9);
                 }
 
                 y -= LineHeight;
@@ -163,7 +168,7 @@ public static class OrderReceiptPdfExporter
             DrawText(content, 46, y, $"Folio: {(request.Folio?.ToString(CultureInfo.InvariantCulture) ?? "Borrador")}", 10, "102A43");
             DrawText(content, 330, y, $"Entrega: {request.DeliveryDate:dd/MM/yyyy} {DateTime.Today.Add(request.DeliveryTime):HH:mm}", 10, "102A43");
             y -= LineHeight;
-            DrawText(content, 46, y, $"Cliente: {request.CustomerName}", 10, "102A43");
+            DrawText(content, 46, y, request.IsInternalProduction ? "Tipo: Produccion del local" : $"Cliente: {request.CustomerName}", 10, "102A43");
             DrawText(content, 330, y, $"Piezas: {request.Items.Sum(item => item.Quantity).ToString(CultureInfo.InvariantCulture)}", 10, "102A43");
             y -= 24;
         }

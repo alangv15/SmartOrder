@@ -9,6 +9,8 @@
         public int Pieces { get; set; }
         public decimal? DiscountAmount { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal? CashReceivedAmount { get; set; }
+        public decimal? CashChangeAmount { get; set; }
         public DateTime? ProductionStartDate { get; set; }
         public DateTime? ProductionEndDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
@@ -22,6 +24,7 @@
         public string? CustomerType { get; set; }
         public string? AcquisitionChannel { get; set; }
         public bool IsDirectSale { get; set; }
+        public bool IsInternalProduction { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public ICollection<OrderItemDto> OrderItems { get; set; } = new List<OrderItemDto>();

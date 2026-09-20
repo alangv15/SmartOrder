@@ -1,4 +1,6 @@
 using SmartOrder.Business.Reports.Services;
+using SmartOrder.Entities.Reports.Models;
+using SmartOrder.Modules.Reports.Services;
 using SmartOrder.Shared.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -24,6 +26,7 @@ namespace SmartOrder.Modules.Reports.ViewModels
             _startDate = DateTime.Today;
             _endDate = DateTime.Today;
             LoadSalesCommand = new Command(async () => await LoadSales());
+            ExportPdfCommand = new Command(async () => await ExportPdf());
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -125,6 +128,8 @@ namespace SmartOrder.Modules.Reports.ViewModels
 
         public ICommand LoadSalesCommand { get; }
 
+        public ICommand ExportPdfCommand { get; }
+
         private async Task LoadSales()
         {
             if (IsLoading)
@@ -136,26 +141,7 @@ namespace SmartOrder.Modules.Reports.ViewModels
             try
             {
                 var report = await _salesSummaryReportService.GetSalesSummaryReportAsync(StartDate, EndDate);
-
-                StartDate = report.StartDate;
-                EndDate = report.EndDate;
-                TotalSalesAmount = report.TotalSalesAmount;
-                CashSalesAmount = report.CashSalesAmount;
-                CardSalesAmount = report.CardSalesAmount;
-                TotalItemsSold = report.TotalItemsSold;
-
-                Days.Clear();
-                foreach (var day in report.Days.OrderBy(day => day.Date))
-                {
-                    Days.Add(new SalesSummaryDayItem
-                    {
-                        Date = day.Date,
-                        TotalSalesAmount = day.TotalSalesAmount,
-                        CashSalesAmount = day.CashSalesAmount,
-                        CardSalesAmount = day.CardSalesAmount,
-                        TotalItemsSold = day.TotalItemsSold
-                    });
-                }
+                ApplyReport(report);
             }
             catch (Exception ex)
             {
@@ -173,6 +159,84 @@ namespace SmartOrder.Modules.Reports.ViewModels
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private async Task ExportPdf()
+        {
+            if (IsLoading)
+            {
+                return;
+            }
+
+            IsLoading = true;
+            try
+            {
+                var report = await _salesSummaryReportService.GetSalesSummaryReportAsync(StartDate, EndDate);
+                ApplyReport(report);
+
+                var filePath = await SalesSummaryPdfExporter.ExportAsync(new SalesSummaryPdfRequest(
+                    StartDate,
+                    EndDate,
+                    TotalSalesAmount,
+                    CashSalesAmount,
+                    CardSalesAmount,
+                    TotalItemsSold,
+                    Days.Select(day => new SalesSummaryPdfDay(
+                        day.Date,
+                        day.TotalSalesAmount,
+                        day.CashSalesAmount,
+                        day.CardSalesAmount,
+                        day.TotalItemsSold)).ToList()));
+
+                await Microsoft.Maui.ApplicationModel.Launcher.OpenAsync(new Microsoft.Maui.ApplicationModel.OpenFileRequest
+                {
+                    File = new Microsoft.Maui.Storage.ReadOnlyFile(filePath)
+                });
+
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Success,
+                    Title = "PDF generado",
+                    Message = "El acumulado de ventas se genero correctamente en la carpeta Documentos\\SmartOrder\\Reports."
+                });
+            }
+            catch (Exception ex)
+            {
+                FileErrorLogger.Log("SalesSummaryReportViewModel.ExportPdf", ex);
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "No se pudo exportar",
+                    Message = "Ocurrio un error al generar el PDF del acumulado de ventas. Revisa el archivo smartorder-errors.log."
+                });
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private void ApplyReport(SalesSummaryReportDto report)
+        {
+            StartDate = report.StartDate;
+            EndDate = report.EndDate;
+            TotalSalesAmount = report.TotalSalesAmount;
+            CashSalesAmount = report.CashSalesAmount;
+            CardSalesAmount = report.CardSalesAmount;
+            TotalItemsSold = report.TotalItemsSold;
+
+            Days.Clear();
+            foreach (var day in report.Days.OrderBy(day => day.Date))
+            {
+                Days.Add(new SalesSummaryDayItem
+                {
+                    Date = day.Date,
+                    TotalSalesAmount = day.TotalSalesAmount,
+                    CashSalesAmount = day.CashSalesAmount,
+                    CardSalesAmount = day.CardSalesAmount,
+                    TotalItemsSold = day.TotalItemsSold
+                });
             }
         }
 

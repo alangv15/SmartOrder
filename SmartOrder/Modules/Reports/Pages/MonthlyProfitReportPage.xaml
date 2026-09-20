@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Modules.Reports.Pages.MonthlyProfitReportPage"
+             Title="Rentabilidad mensual"
+             BackgroundColor="#F4F7FB">
+
+    <ContentPage.Resources>
+        <Style x:Key="CardFrameStyle" TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="BorderColor" Value="#D9E2EC" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="HasShadow" Value="True" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="MetricLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="TextColor" Value="#DCEEF8" />
+        </Style>
+
+        <Style x:Key="MetricValueStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="TextColor" Value="White" />
+        </Style>
+
+        <Style x:Key="MetricFrameStyle" TargetType="Frame">
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="HasShadow" Value="False" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*"
+          Padding="18,14,18,18"
+          RowSpacing="0">
+
+        <Frame Grid.Row="0"
+               Style="{StaticResource CardFrameStyle}"
+               BackgroundColor="#12344D"
+               BorderColor="#12344D"
+               Padding="14">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                    <Label Text="Rentabilidad mensual"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="{Binding PeriodLabel}"
+                           FontSize="13"
+                           TextColor="#D9E2EC" />
+                </VerticalStackLayout>
+
+                <Button Grid.Column="1"
+                        Text="&#x21bb;"
+                        Command="{Binding LoadReportCommand}"
+                        BackgroundColor="#E6EEF8"
+                        TextColor="#0F4C81"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        WidthRequest="54"
+                        FontSize="24"
+                        FontAttributes="Bold" />
+            </Grid>
+        </Frame>
+
+        <Frame Grid.Row="1" Style="{StaticResource CardFrameStyle}">
+            <Grid ColumnDefinitions="*,*,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="10"
+                  RowSpacing="10">
+                <Frame Grid.Row="0" Grid.Column="0" Style="{StaticResource MetricFrameStyle}" BackgroundColor="#6C4C1D" BorderColor="#6C4C1D">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Ingresos totales" Style="{StaticResource MetricLabelStyle}" TextColor="#F9E0AE" />
+                        <Label Text="{Binding TotalRevenueAmount, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="0" Grid.Column="1" Style="{StaticResource MetricFrameStyle}" BackgroundColor="#0B6E4F" BorderColor="#0B6E4F">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Efectivo" Style="{StaticResource MetricLabelStyle}" TextColor="#D9F3E7" />
+                        <Label Text="{Binding CashRevenueAmount, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="0" Grid.Column="2" Style="{StaticResource MetricFrameStyle}" BackgroundColor="#1B587C" BorderColor="#1B587C">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Tarjeta" Style="{StaticResource MetricLabelStyle}" />
+                        <Label Text="{Binding CardRevenueAmount, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="1" Grid.Column="0" Style="{StaticResource MetricFrameStyle}" BackgroundColor="#7A4E24" BorderColor="#7A4E24">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Costos" Style="{StaticResource MetricLabelStyle}" TextColor="#F9E0AE" />
+                        <Label Text="{Binding TotalCostAmount, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="1" Grid.Column="1" Style="{StaticResource MetricFrameStyle}" BackgroundColor="#164A68" BorderColor="#164A68">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Utilidad bruta" Style="{StaticResource MetricLabelStyle}" />
+                        <Label Text="{Binding GrossProfitAmount, StringFormat='${0:F2}'}" Style="{StaticResource MetricValueStyle}" />
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Row="1" Grid.Column="2" Style="{StaticResource MetricFrameStyle}" BackgroundColor="#5B3A8C" BorderColor="#5B3A8C">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Margen bruto" Style="{StaticResource MetricLabelStyle}" />
+                        <Label Text="{Binding GrossMarginPercentage, StringFormat='{0:F2}%'}" Style="{StaticResource MetricValueStyle}" />
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+        </Frame>
+
+        <Frame Grid.Row="2" Style="{StaticResource CardFrameStyle}" Padding="0" Margin="0">
+            <Grid RowDefinitions="Auto,*">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="1.35*,*,*,*,*,*,*"
+                      BackgroundColor="#EAF1F8"
+                      Padding="14,10"
+                      Margin="14,14,14,8">
+                    <Label Text="Concepto" Grid.Column="0" FontAttributes="Bold" TextColor="#243B53" />
+                    <Label Text="{Binding Month1Label}" Grid.Column="1" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="{Binding Month2Label}" Grid.Column="2" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="{Binding Month3Label}" Grid.Column="3" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="{Binding Month4Label}" Grid.Column="4" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="{Binding Month5Label}" Grid.Column="5" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                    <Label Text="{Binding Month6Label}" Grid.Column="6" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#243B53" />
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,0,0,12">
+                    <CollectionView ItemsSource="{Binding Metrics}" Margin="0,0,0,4">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="1.35*,*,*,*,*,*,*"
+                                      Padding="14,11"
+                                      Margin="14,0,14,8"
+                                      BackgroundColor="#FBFCFE">
+                                    <Label Text="{Binding MetricName}" Grid.Column="0" FontAttributes="Bold" TextColor="{Binding ValueColorHex}" />
+                                    <Label Text="{Binding Month1Value}" Grid.Column="1" HorizontalOptions="Center" TextColor="{Binding ValueColorHex}" />
+                                    <Label Text="{Binding Month2Value}" Grid.Column="2" HorizontalOptions="Center" TextColor="{Binding ValueColorHex}" />
+                                    <Label Text="{Binding Month3Value}" Grid.Column="3" HorizontalOptions="Center" TextColor="{Binding ValueColorHex}" />
+                                    <Label Text="{Binding Month4Value}" Grid.Column="4" HorizontalOptions="Center" TextColor="{Binding ValueColorHex}" />
+                                    <Label Text="{Binding Month5Value}" Grid.Column="5" HorizontalOptions="Center" TextColor="{Binding ValueColorHex}" />
+                                    <Label Text="{Binding Month6Value}" Grid.Column="6" HorizontalOptions="Center" TextColor="{Binding ValueColorHex}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       Color="#1B587C" />
+                </Grid>
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentPage>

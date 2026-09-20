@@ -2,12 +2,15 @@ using SmartOrder.Business.Configuration.Services;
 using SmartOrder.Business.Orders.Services;
 using SmartOrder.Entities.Configuration.Models;
 using SmartOrder.Entities.Orders.Models;
+using SmartOrder.Modules.Sales.Services;
 using SmartOrder.Shared.Catalogs;
 using SmartOrder.Shared.Models;
+using SmartOrder.Shared.Printing;
 using SmartOrder.Shared.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows.Input;
 
 namespace SmartOrder.Modules.Sales.ViewModels
@@ -20,8 +23,10 @@ namespace SmartOrder.Modules.Sales.ViewModels
         private readonly OrderService _orderService;
         private readonly ProductService _productService;
         private readonly CategoryService _categoryService;
+        private readonly BranchService _branchService;
         private readonly DiscountRuleService _discountRuleService;
         private readonly DiscountLimitRuleService _discountLimitRuleService;
+        private readonly ITicketPrinterService _ticketPrinterService;
         private readonly Command _saveCommand;
         private readonly Command _addProductCommand;
         private readonly Command _loadSaleForEditCommand;
@@ -36,6 +41,7 @@ namespace SmartOrder.Modules.Sales.ViewModels
         private LookupOption? _selectedCustomerType;
         private LookupOption? _selectedAcquisitionChannel;
         private readonly HashSet<int> _selectedDiscountIds = new();
+        private string _cashReceivedAmountText = string.Empty;
         private ProductDto? _selectedProduct;
         private string _productSearchText = string.Empty;
         private CategoryDto? _selectedCategory;
@@ -48,15 +54,19 @@ namespace SmartOrder.Modules.Sales.ViewModels
             OrderService orderService,
             ProductService productService,
             CategoryService categoryService,
+            BranchService branchService,
             DiscountRuleService discountRuleService,
-            DiscountLimitRuleService discountLimitRuleService)
+            DiscountLimitRuleService discountLimitRuleService,
+            ITicketPrinterService ticketPrinterService)
         {
             _defaultUserId = defaultUserId;
             _orderService = orderService;
             _productService = productService;
             _categoryService = categoryService;
+            _branchService = branchService;
             _discountRuleService = discountRuleService;
             _discountLimitRuleService = discountLimitRuleService;
+            _ticketPrinterService = ticketPrinterService;
 
             IncreaseProduct = new Command<SaleItemViewModel>(item =>
             {
@@ -83,6 +93,8 @@ namespace SmartOrder.Modules.Sales.ViewModels
 
             _saveCommand = new Command(async () => await SaveAsync(), () => !IsSaving);
             SaveCommand = _saveCommand;
+            ExportSalePdfCommand = new Command(async () => await ExportSalePdfAsync());
+            PrintSaleTicketCommand = new Command(async () => await PrintSaleTicketAsync());
 
             SaleItems.CollectionChanged += SaleItems_CollectionChanged;
 
@@ -115,6 +127,13 @@ namespace SmartOrder.Modules.Sales.ViewModels
                     OnPropertyChanged(nameof(PaymentMethod));
                     OnPropertyChanged(nameof(IsCashPayment));
                     OnPropertyChanged(nameof(IsCardPayment));
+                    OnPropertyChanged(nameof(IsCashPaymentSelected));
+                    RefreshCashChange();
+
+                    if (!IsCashPaymentSelected)
+                    {
+                        CashReceivedAmountText = string.Empty;
+                    }
                 }
             }
         }
@@ -202,6 +221,29 @@ namespace SmartOrder.Modules.Sales.ViewModels
         }
 
         public bool IsAcquisitionChannelEnabled => SelectedCustomerType?.Code == OrderCatalog.NewCustomerTypeCode;
+        public bool IsCashPaymentSelected => PaymentMethod == OrderCatalog.CashPaymentMethodCode;
+
+        public string CashReceivedAmountText
+        {
+            get => _cashReceivedAmountText;
+            set
+            {
+                if (_cashReceivedAmountText != value)
+                {
+                    _cashReceivedAmountText = value;
+                    OnPropertyChanged(nameof(CashReceivedAmountText));
+                    RefreshCashChange();
+                }
+            }
+        }
+
+        public decimal? CashReceivedAmount => TryParseCashReceivedAmount(out var amount) ? amount : null;
+        public decimal CashChangeAmount => IsCashPaymentSelected && CashReceivedAmount.HasValue
+            ? Math.Max(0, CashReceivedAmount.Value - Total)
+            : 0;
+        public string CashChangeAmountDisplay => IsCashPaymentSelected && CashReceivedAmount.HasValue
+            ? CashChangeAmount.ToString("C2", CultureInfo.CurrentCulture)
+            : "$0.00";
 
         public string DiscountSelectionSummary => GetSelectedDiscounts().Any()
             ? string.Join(", ", GetSelectedDiscounts().Select(discount => discount.Name))
@@ -323,6 +365,8 @@ namespace SmartOrder.Modules.Sales.ViewModels
         public ICommand LoadSaleForEditCommand { get; }
         public ICommand CancelEditCommand { get; }
         public ICommand SaveCommand { get; }
+        public ICommand ExportSalePdfCommand { get; }
+        public ICommand PrintSaleTicketCommand { get; }
         public ICommand IncreaseProduct { get; }
 
         public async Task RefreshCatalogDataAsync()
@@ -432,6 +476,167 @@ namespace SmartOrder.Modules.Sales.ViewModels
             }
         }
 
+        private async Task ExportSalePdfAsync()
+        {
+            if (!SaleItems.Any())
+            {
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "Venta vacia",
+                    Message = "Agrega al menos un producto antes de exportar la nota de venta."
+                });
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PaymentMethod))
+            {
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "Metodo de pago requerido",
+                    Message = "Selecciona efectivo o tarjeta antes de exportar la nota de venta."
+                });
+                return;
+            }
+
+            try
+            {
+                RefreshItemDiscounts();
+                var branch = await _branchService.GetByIdAsync(DirectSaleBranchId);
+                var filePath = await SaleReceiptPdfExporter.ExportAsync(new SaleReceiptPdfRequest(
+                    _editingOrderId,
+                    branch?.Name ?? "SmartOrder",
+                    BuildBranchAddress(branch),
+                    branch?.Phone,
+                    SaleDate,
+                    OrderCatalog.GetPaymentMethodLabel(PaymentMethod),
+                    SaleItems.ToList(),
+                    Subtotal,
+                    DiscountAmount,
+                    Total));
+
+                await Microsoft.Maui.ApplicationModel.Launcher.OpenAsync(new Microsoft.Maui.ApplicationModel.OpenFileRequest
+                {
+                    File = new Microsoft.Maui.Storage.ReadOnlyFile(filePath)
+                });
+
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Success,
+                    Title = "PDF generado",
+                    Message = "La nota de venta se genero correctamente en la carpeta Documentos\\SmartOrder\\Sales."
+                });
+            }
+            catch (Exception ex)
+            {
+                FileErrorLogger.Log("SaleFormViewModel.ExportSalePdfAsync", ex);
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "No se pudo exportar",
+                    Message = "Ocurrio un error al generar el PDF de la venta. Revisa el archivo smartorder-errors.log."
+                });
+            }
+        }
+
+        private async Task PrintSaleTicketAsync()
+        {
+            if (!SaleItems.Any())
+            {
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "Venta vacia",
+                    Message = "Agrega al menos un producto antes de imprimir el ticket."
+                });
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PaymentMethod))
+            {
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "Metodo de pago requerido",
+                    Message = "Selecciona efectivo o tarjeta antes de imprimir el ticket."
+                });
+                return;
+            }
+
+            try
+            {
+                RefreshItemDiscounts();
+                var branch = await _branchService.GetByIdAsync(DirectSaleBranchId);
+                var result = await _ticketPrinterService.PrintAsync(BuildSaleTicketDocument(branch));
+
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = result.Success ? AppMessageType.Success : AppMessageType.Info,
+                    Title = result.Title,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                FileErrorLogger.Log("SaleFormViewModel.PrintSaleTicketAsync", ex);
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Error,
+                    Title = "No se pudo imprimir",
+                    Message = "Ocurrio un error al preparar el ticket de venta. Revisa el archivo smartorder-errors.log."
+                });
+            }
+        }
+
+        private TicketDocument BuildSaleTicketDocument(BranchDto? branch, int? folio = null)
+        {
+            var branchAddress = BuildBranchAddress(branch);
+            var includeDiscounts = DiscountAmount > 0;
+            var totals = new List<TicketTotalLine>
+            {
+                new("Subtotal", Subtotal)
+            };
+
+            if (includeDiscounts)
+            {
+                totals.Add(new TicketTotalLine("Descuento", DiscountAmount));
+            }
+
+            totals.Add(new TicketTotalLine("Total", Total, IsGrandTotal: true));
+
+            if (IsCashPaymentSelected && CashReceivedAmount.HasValue)
+            {
+                totals.Add(new TicketTotalLine("Recibido", CashReceivedAmount.Value));
+                totals.Add(new TicketTotalLine("Cambio", CashChangeAmount));
+            }
+
+            return new TicketDocument(
+                branch?.Name ?? "SmartOrder",
+                new[]
+                {
+                    branchAddress,
+                    string.IsNullOrWhiteSpace(branch?.Phone) ? null : $"WhatsApp {branch.Phone}"
+                }.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => line!).ToList(),
+                new[]
+                {
+                    new TicketInfoLine("Folio", (folio ?? _editingOrderId)?.ToString() ?? "Borrador"),
+                    new TicketInfoLine("Fecha", SaleDate.ToString("dd/MM/yyyy HH:mm")),
+                    new TicketInfoLine("Metodo de pago", OrderCatalog.GetPaymentMethodLabel(PaymentMethod)),
+                    new TicketInfoLine("Piezas", TotalProductQuantity.ToString())
+                },
+                SaleItems.Select(item => new TicketItemLine(
+                    item.CategoryName,
+                    item.ProductName,
+                    item.Quantity,
+                    item.Price,
+                    item.DiscountAmount,
+                    item.Total)).ToList(),
+                includeDiscounts,
+                totals,
+                new[] { "Gracias por su compra" });
+        }
+
         private void FilterProducts()
         {
             FilteredProducts.Clear();
@@ -510,7 +715,11 @@ namespace SmartOrder.Modules.Sales.ViewModels
                 CategoryId = SelectedProduct.CategoryId,
                 CategoryName = ResolveCategoryName(SelectedProduct.CategoryId),
                 ProductName = SelectedProduct.Name,
-                Price = SelectedProduct.SalePrice,
+                Price = ResolveCurrentSalePrice(SelectedProduct),
+                UnitCost = ResolveCurrentUnitCost(SelectedProduct),
+                ProductRecipeId = SelectedProduct.CurrentProductRecipeId,
+                ProductPriceId = SelectedProduct.CurrentProductPriceId,
+                CostCalculatedAt = DateTime.UtcNow,
                 Quantity = 1
             });
             RefreshItemDiscounts();
@@ -611,6 +820,9 @@ namespace SmartOrder.Modules.Sales.ViewModels
             OnPropertyChanged(nameof(SaleDate));
 
             PaymentMethod = order.PaymentMethod;
+            CashReceivedAmountText = order.CashReceivedAmount.HasValue
+                ? order.CashReceivedAmount.Value.ToString("0.##", CultureInfo.CurrentCulture)
+                : string.Empty;
             SelectedCustomerGender = CustomerGenderOptions.FirstOrDefault(option => option.Code == order.CustomerGender);
             SelectedCustomerAgeRange = CustomerAgeRangeOptions.FirstOrDefault(option => option.Code == order.CustomerAgeRange);
             SelectedCustomerType = CustomerTypeOptions.FirstOrDefault(option => option.Code == order.CustomerType);
@@ -648,6 +860,10 @@ namespace SmartOrder.Modules.Sales.ViewModels
                     CategoryName = ResolveCategoryName(orderProduct.Product.CategoryId),
                     ProductName = orderProduct.Product.Name,
                     Price = orderProduct.OrderItem.UnitPrice,
+                    UnitCost = orderProduct.OrderItem.UnitCost,
+                    ProductRecipeId = orderProduct.OrderItem.ProductRecipeId,
+                    ProductPriceId = orderProduct.OrderItem.ProductPriceId,
+                    CostCalculatedAt = orderProduct.OrderItem.CostCalculatedAt,
                     DiscountPerUnit = orderProduct.OrderItem.DiscountPerUnit ?? 0,
                     Quantity = orderProduct.OrderItem.Quantity
                 });
@@ -707,6 +923,14 @@ namespace SmartOrder.Modules.Sales.ViewModels
             OnPropertyChanged(nameof(Subtotal));
             OnPropertyChanged(nameof(DiscountAmount));
             OnPropertyChanged(nameof(Total));
+            RefreshCashChange();
+        }
+
+        private void RefreshCashChange()
+        {
+            OnPropertyChanged(nameof(CashReceivedAmount));
+            OnPropertyChanged(nameof(CashChangeAmount));
+            OnPropertyChanged(nameof(CashChangeAmountDisplay));
         }
 
         private void RefreshItemDiscounts()
@@ -715,6 +939,28 @@ namespace SmartOrder.Modules.Sales.ViewModels
             {
                 item.DiscountPerUnit = CalculateDiscountPerUnit(item, GetSelectedDiscounts());
             }
+        }
+
+        private static decimal ResolveCurrentSalePrice(ProductDto product)
+        {
+            return product.CurrentSalePrice.GetValueOrDefault(product.SalePrice);
+        }
+
+        private static decimal ResolveCurrentUnitCost(ProductDto product)
+        {
+            return product.CurrentUnitCost.GetValueOrDefault(0);
+        }
+
+        private bool HasItemsWithoutCost()
+        {
+            return SaleItems.Any(item => item.UnitCost <= 0 || !item.ProductRecipeId.HasValue);
+        }
+
+        private string BuildCostingSaveMessage(string baseMessage)
+        {
+            return HasItemsWithoutCost()
+                ? $"{baseMessage} Hay productos sin costo configurado; se guardaron con costo $0."
+                : baseMessage;
         }
 
         private async Task SaveAsync()
@@ -739,28 +985,6 @@ namespace SmartOrder.Modules.Sales.ViewModels
                     return;
                 }
 
-                if (SelectedCustomerGender == null || SelectedCustomerAgeRange == null || SelectedCustomerType == null)
-                {
-                    await AppMessageService.ShowAsync(new AppMessageOptions
-                    {
-                        Type = AppMessageType.Error,
-                        Title = "Datos del cliente incompletos",
-                        Message = "Selecciona género, rango de edad y tipo de cliente para continuar."
-                    });
-                    return;
-                }
-
-                if (IsAcquisitionChannelEnabled && SelectedAcquisitionChannel == null)
-                {
-                    await AppMessageService.ShowAsync(new AppMessageOptions
-                    {
-                        Type = AppMessageType.Error,
-                        Title = "Falta el canal de adquisición",
-                        Message = "Indica cómo nos encontró el cliente cuando el tipo de cliente es Nuevo."
-                    });
-                    return;
-                }
-
                 if (string.IsNullOrWhiteSpace(PaymentMethod))
                 {
                     await AppMessageService.ShowAsync(new AppMessageOptions
@@ -773,6 +997,48 @@ namespace SmartOrder.Modules.Sales.ViewModels
                 }
 
                 RefreshItemDiscounts();
+
+                decimal? cashReceivedAmount = null;
+                decimal? cashChangeAmount = null;
+                if (IsCashPaymentSelected)
+                {
+                    if (string.IsNullOrWhiteSpace(CashReceivedAmountText))
+                    {
+                        await AppMessageService.ShowAsync(new AppMessageOptions
+                        {
+                            Type = AppMessageType.Error,
+                            Title = "Efectivo recibido requerido",
+                            Message = "Captura el monto recibido del cliente antes de confirmar la venta."
+                        });
+                        return;
+                    }
+
+                    if (!TryParseCashReceivedAmount(out var parsedCashReceivedAmount))
+                    {
+                        await AppMessageService.ShowAsync(new AppMessageOptions
+                        {
+                            Type = AppMessageType.Error,
+                            Title = "Monto recibido invalido",
+                            Message = "Captura un monto recibido valido para poder calcular el cambio."
+                        });
+                        return;
+                    }
+
+                    if (parsedCashReceivedAmount < Total)
+                    {
+                        await AppMessageService.ShowAsync(new AppMessageOptions
+                        {
+                            Type = AppMessageType.Error,
+                            Title = "Efectivo insuficiente",
+                            Message = "El monto recibido debe cubrir el total de la venta."
+                        });
+                        return;
+                    }
+
+                    cashReceivedAmount = parsedCashReceivedAmount;
+                    cashChangeAmount = parsedCashReceivedAmount - Total;
+                }
+
                 var selectedDiscounts = GetSelectedDiscounts().ToList();
 
                 var order = new OrderDto
@@ -783,15 +1049,17 @@ namespace SmartOrder.Modules.Sales.ViewModels
                     Pieces = SaleItems.Sum(item => item.Quantity),
                     DiscountAmount = DiscountAmount,
                     TotalAmount = Total,
+                    CashReceivedAmount = cashReceivedAmount,
+                    CashChangeAmount = cashChangeAmount,
                     OrderStatusCode = OrderCatalog.CompletedOrderStatusCode,
                     PaymentStatusCode = OrderCatalog.PaidPaymentStatusCode,
                     SalesChannel = OrderCatalog.InStoreSalesChannelCode,
                     IsDirectSale = true,
                     PaymentMethod = PaymentMethod,
-                    CustomerGender = SelectedCustomerGender.Code,
-                    CustomerAgeRange = SelectedCustomerAgeRange.Code,
-                    CustomerType = SelectedCustomerType.Code,
-                    AcquisitionChannel = SelectedAcquisitionChannel?.Code,
+                    CustomerGender = IsEditingSale ? SelectedCustomerGender?.Code : null,
+                    CustomerAgeRange = IsEditingSale ? SelectedCustomerAgeRange?.Code : null,
+                    CustomerType = IsEditingSale ? SelectedCustomerType?.Code : null,
+                    AcquisitionChannel = IsEditingSale ? SelectedAcquisitionChannel?.Code : null,
                     CreatedAt = IsEditingSale ? _editingCreatedAtUtc : DateTime.UtcNow,
                     UpdatedAt = IsEditingSale ? DateTime.UtcNow : null,
                     OrderItems = SaleItems.Select(item => new OrderItemDto
@@ -799,8 +1067,12 @@ namespace SmartOrder.Modules.Sales.ViewModels
                         ProductId = item.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = item.Price,
+                        UnitCost = item.UnitCost,
                         DiscountPerUnit = item.DiscountPerUnit,
-                        DiscountAmount = item.DiscountAmount
+                        DiscountAmount = item.DiscountAmount,
+                        ProductRecipeId = item.ProductRecipeId,
+                        ProductPriceId = item.ProductPriceId,
+                        CostCalculatedAt = item.CostCalculatedAt
                     }).ToList()
                 };
 
@@ -822,7 +1094,7 @@ namespace SmartOrder.Modules.Sales.ViewModels
                         {
                             Type = AppMessageType.Success,
                             Title = "Edicion confirmada",
-                            Message = $"La venta con folio #{order.OrderId} se actualizo correctamente."
+                            Message = BuildCostingSaveMessage($"La venta con folio #{order.OrderId} se actualizo correctamente.")
                         });
                         ResetForm();
                     }
@@ -839,14 +1111,22 @@ namespace SmartOrder.Modules.Sales.ViewModels
                 else
                 {
                     var id = await _orderService.CreateAsync(order);
-                    if (id.HasValue)
+                    var newSaleId = id.GetValueOrDefault();
+                    if (newSaleId > 0)
                     {
+                        var branch = await _branchService.GetByIdAsync(DirectSaleBranchId);
+                        var ticketDocument = BuildSaleTicketDocument(branch, newSaleId);
+                        var saleMessage = BuildCostingSaveMessage($"La venta se guardó correctamente con el folio #{newSaleId}.");
+
+                        _ = PrintConfirmedSaleTicketAsync(ticketDocument);
+
                         await AppMessageService.ShowAsync(new AppMessageOptions
                         {
                             Type = AppMessageType.Success,
                             Title = "Venta registrada",
-                            Message = $"La venta se guardó correctamente con el folio #{id.Value}."
+                            Message = saleMessage
                         });
+
                         ResetForm();
                     }
                     else
@@ -878,6 +1158,33 @@ namespace SmartOrder.Modules.Sales.ViewModels
             }
         }
 
+        private async Task PrintConfirmedSaleTicketAsync(TicketDocument ticketDocument)
+        {
+            try
+            {
+                var result = await _ticketPrinterService.PrintAsync(ticketDocument, TimeSpan.FromSeconds(3));
+                if (!result.Success)
+                {
+                    await AppMessageService.ShowAsync(new AppMessageOptions
+                    {
+                        Type = AppMessageType.Info,
+                        Title = result.Title,
+                        Message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                FileErrorLogger.Log("SaleFormViewModel.PrintConfirmedSaleTicketAsync", ex);
+                await AppMessageService.ShowAsync(new AppMessageOptions
+                {
+                    Type = AppMessageType.Info,
+                    Title = "Ticket pendiente",
+                    Message = "La venta se guardo, pero no se pudo imprimir el ticket automaticamente."
+                });
+            }
+        }
+
         public void ResetForm()
         {
             SaleItems.Clear();
@@ -889,6 +1196,7 @@ namespace SmartOrder.Modules.Sales.ViewModels
             _selectedDiscountIds.Clear();
             OnPropertyChanged(nameof(DiscountSelectionSummary));
             PaymentMethod = string.Empty;
+            CashReceivedAmountText = string.Empty;
             SelectedCustomerGender = null;
             SelectedCustomerAgeRange = null;
             SelectedCustomerType = null;
@@ -929,6 +1237,48 @@ namespace SmartOrder.Modules.Sales.ViewModels
             return utcDateTime.Kind == DateTimeKind.Utc
                 ? utcDateTime.ToLocalTime()
                 : DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc).ToLocalTime();
+        }
+
+        private static string? BuildBranchAddress(BranchDto? branch)
+        {
+            if (branch == null)
+            {
+                return null;
+            }
+
+            var addressParts = new[]
+            {
+                branch.Address,
+                branch.City,
+                branch.State,
+                branch.PostalCode
+            };
+
+            var address = string.Join(", ", addressParts
+                .Where(part => !string.IsNullOrWhiteSpace(part))
+                .Select(part => NormalizeDisplayText(part!)));
+
+            return string.IsNullOrWhiteSpace(address) ? null : address;
+        }
+
+        private static string NormalizeDisplayText(string value)
+        {
+            return string.Join(' ', value
+                .Trim()
+                .Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        private bool TryParseCashReceivedAmount(out decimal amount)
+        {
+            var text = CashReceivedAmountText?.Trim();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                amount = 0;
+                return false;
+            }
+
+            return decimal.TryParse(text, NumberStyles.Currency, CultureInfo.CurrentCulture, out amount)
+                || decimal.TryParse(text, NumberStyles.Currency, CultureInfo.InvariantCulture, out amount);
         }
 
         private async Task SelectDiscountsAsync()

@@ -24,12 +24,17 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
         Routing.RegisterRoute("CategoryListPage", typeof(CategoryListPage));
         Routing.RegisterRoute("BranchListPage", typeof(BranchListPage));
         Routing.RegisterRoute("ProductListPage", typeof(ProductListPage));
+        Routing.RegisterRoute("CostItemListPage", typeof(CostItemListPage));
+        Routing.RegisterRoute("RecipeListPage", typeof(RecipeListPage));
+        Routing.RegisterRoute("ProductCostingIssuesPage", typeof(ProductCostingIssuesPage));
+        Routing.RegisterRoute("PrinterSettingsPage", typeof(PrinterSettingsPage));
         Routing.RegisterRoute("CustomerListPage", typeof(CustomerListPage));
         Routing.RegisterRoute("SalesFormPage", typeof(SaleFormPage));
         Routing.RegisterRoute("OrderListPage", typeof(OrderListPage));
         Routing.RegisterRoute("OrderFormPage", typeof(OrderFormPage));
         Routing.RegisterRoute("DailySalesReportPage", typeof(DailySalesReportPage));
         Routing.RegisterRoute("SalesSummaryReportPage", typeof(SalesSummaryReportPage));
+        Routing.RegisterRoute("MonthlyProfitReportPage", typeof(MonthlyProfitReportPage));
         Routing.RegisterRoute("LoginPage", typeof(LoginPage));
         Routing.RegisterRoute("UserListPage", typeof(UserListPage));
         Routing.RegisterRoute("RoleListPage", typeof(RoleListPage));
@@ -202,6 +207,11 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
         await NavigateIfAllowedAsync("//SalesSummaryReportPage", PermissionCatalog.ReportsSalesSummaryView, "AppShell.OnSalesSummaryReportTapped");
     }
 
+    private async void OnMonthlyProfitReportTapped(object sender, TappedEventArgs e)
+    {
+        await NavigateIfAllowedAsync("//MonthlyProfitReportPage", PermissionCatalog.ReportsSalesSummaryView, "AppShell.OnMonthlyProfitReportTapped");
+    }
+
     private async void OnBranchesTapped(object sender, TappedEventArgs e)
     {
         await NavigateIfAllowedAsync("//BranchListPage", PermissionCatalog.BranchesManage, "AppShell.OnBranchesTapped");
@@ -215,6 +225,31 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
     private async void OnProductsTapped(object sender, TappedEventArgs e)
     {
         await NavigateIfAllowedAsync("//ProductListPage", PermissionCatalog.ProductsManage, "AppShell.OnProductsTapped");
+    }
+
+    private async void OnCostItemsTapped(object sender, TappedEventArgs e)
+    {
+        await NavigateIfAllowedAsync("//CostItemListPage", PermissionCatalog.ProductsManage, "AppShell.OnCostItemsTapped");
+    }
+
+    private async void OnRecipesTapped(object sender, TappedEventArgs e)
+    {
+        await NavigateIfAllowedAsync("//RecipeListPage", PermissionCatalog.ProductsManage, "AppShell.OnRecipesTapped");
+    }
+
+    private async void OnBaseRecipesTapped(object sender, TappedEventArgs e)
+    {
+        await NavigateIfAllowedAsync("//BaseRecipeListPage", PermissionCatalog.ProductsManage, "AppShell.OnBaseRecipesTapped");
+    }
+
+    private async void OnProductCostingIssuesTapped(object sender, TappedEventArgs e)
+    {
+        await NavigateIfAllowedAsync("//ProductCostingIssuesPage", PermissionCatalog.ProductsManage, "AppShell.OnProductCostingIssuesTapped");
+    }
+
+    private async void OnPrinterSettingsTapped(object sender, TappedEventArgs e)
+    {
+        await NavigateIfAllowedAsync("//PrinterSettingsPage", PermissionCatalog.ConfigurationAccess, "AppShell.OnPrinterSettingsTapped");
     }
 
     private async void OnCustomersTapped(object sender, TappedEventArgs e)
@@ -265,6 +300,11 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
             return PermissionCatalog.ReportsSalesSummaryView;
         }
 
+        if (route.Contains("MonthlyProfitReportPage", StringComparison.OrdinalIgnoreCase))
+        {
+            return PermissionCatalog.ReportsSalesSummaryView;
+        }
+
         if (route.Contains("CategoryListPage", StringComparison.OrdinalIgnoreCase))
         {
             return PermissionCatalog.CategoriesManage;
@@ -275,9 +315,17 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
             return PermissionCatalog.BranchesManage;
         }
 
-        if (route.Contains("ProductListPage", StringComparison.OrdinalIgnoreCase))
+        if (route.Contains("ProductListPage", StringComparison.OrdinalIgnoreCase)
+            || route.Contains("CostItemListPage", StringComparison.OrdinalIgnoreCase)
+            || route.Contains("RecipeListPage", StringComparison.OrdinalIgnoreCase)
+            || route.Contains("ProductCostingIssuesPage", StringComparison.OrdinalIgnoreCase))
         {
             return PermissionCatalog.ProductsManage;
+        }
+
+        if (route.Contains("PrinterSettingsPage", StringComparison.OrdinalIgnoreCase))
+        {
+            return PermissionCatalog.ConfigurationAccess;
         }
 
         if (route.Contains("CustomerListPage", StringComparison.OrdinalIgnoreCase))

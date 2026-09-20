@@ -10,8 +10,8 @@
         <Nullable>enable</Nullable>
         <ApplicationTitle>SmartOrder</ApplicationTitle>
         <ApplicationId>com.companyname.smartorder</ApplicationId>
-        <ApplicationDisplayVersion>1.0.2</ApplicationDisplayVersion>
-        <ApplicationVersion>102</ApplicationVersion>
+        <ApplicationDisplayVersion>1.1.0</ApplicationDisplayVersion>
+        <ApplicationVersion>110</ApplicationVersion>
         <WindowsPackageType>None</WindowsPackageType>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -23,6 +23,9 @@
 
     <PropertyGroup>
       <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+      <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+      <SelfContained>true</SelfContained>
+      <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     </PropertyGroup>
 
     <ItemGroup>
@@ -69,6 +72,9 @@
       <MauiXaml Update="Modules\Configuration\Pages\CustomerListPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+      <MauiXaml Update="Modules\Configuration\Pages\PrinterSettingsPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
       <MauiXaml Update="Modules\Sales\Pages\SaleFormPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
@@ -79,6 +85,9 @@
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
       <MauiXaml Update="Modules\Reports\Pages\DailySalesReportPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Modules\Reports\Pages\MonthlyProfitReportPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
       <MauiXaml Update="Modules\Reports\Pages\SalesSummaryReportPage.xaml">
@@ -124,6 +133,9 @@
       <Compile Update="Modules\Configuration\Pages\CustomerListPage.xaml.cs">
         <DependentUpon>CustomerListPage.xaml</DependentUpon>
       </Compile>
+      <Compile Update="Modules\Configuration\Pages\PrinterSettingsPage.xaml.cs">
+        <DependentUpon>PrinterSettingsPage.xaml</DependentUpon>
+      </Compile>
       <Compile Update="Modules\Orders\Pages\OrderFormPage.xaml.cs">
         <DependentUpon>OrderFormPage.xaml</DependentUpon>
       </Compile>
@@ -132,6 +144,9 @@
       </Compile>
       <Compile Update="Modules\Reports\Pages\DailySalesReportPage.xaml.cs">
         <DependentUpon>DailySalesReportPage.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Modules\Reports\Pages\MonthlyProfitReportPage.xaml.cs">
+        <DependentUpon>MonthlyProfitReportPage.xaml</DependentUpon>
       </Compile>
       <Compile Update="Modules\Reports\Pages\SalesSummaryReportPage.xaml.cs">
         <DependentUpon>SalesSummaryReportPage.xaml</DependentUpon>

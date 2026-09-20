@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartOrder.Mobile.Modules.Orders.Pages.MobileOrderFormPage"
+             Title="Pedido">
+    <ScrollView>
+        <VerticalStackLayout Padding="14" Spacing="12">
+            <Border BackgroundColor="#E8F5EF"
+                    StrokeThickness="0"
+                    Padding="16"
+                    StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding HeaderTitle}"
+                           FontSize="24"
+                           FontAttributes="Bold" />
+                    <Label Text="Captura adaptada para celular"
+                           FontSize="13"
+                           TextColor="#627D98" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#FCECEC"
+                    StrokeThickness="0"
+                    Padding="12"
+                    IsVisible="{Binding HasMessage}"
+                    StrokeShape="RoundRectangle 14">
+                <Label Text="{Binding Message}" TextColor="#9B1C1C" />
+            </Border>
+
+            <Border BackgroundColor="White"
+                    StrokeThickness="0"
+                    Padding="14"
+                    StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Programación"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+                    <Label Text="Cliente" FontSize="12" TextColor="#627D98" />
+                    <Picker ItemsSource="{Binding Customers}"
+                            ItemDisplayBinding="{Binding FullName}"
+                            SelectedItem="{Binding SelectedCustomer}"
+                            IsEnabled="{Binding IsRegularCustomerOrder}" />
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Text="Producción del local"
+                               FontAttributes="Bold"
+                               TextColor="#0B6E4F"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding IsInternalProduction}"
+                                VerticalOptions="Center" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Inicio" FontSize="12" TextColor="#627D98" />
+                            <DatePicker Date="{Binding ProductionStartDate}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Fin" FontSize="12" TextColor="#627D98" />
+                            <DatePicker Date="{Binding ProductionEndDate}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Entrega" FontSize="12" TextColor="#627D98" />
+                            <DatePicker Date="{Binding DeliveryDate}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Hora" FontSize="12" TextColor="#627D98" />
+                            <TimePicker Time="{Binding DeliveryTime}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#EAF2FB"
+                    StrokeThickness="0"
+                    Padding="14"
+                    StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Selecciona productos"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+                    <Picker ItemsSource="{Binding Categories}"
+                            ItemDisplayBinding="{Binding Name}"
+                            SelectedItem="{Binding SelectedCategory}" />
+                    <Entry Placeholder="Buscar producto"
+                           Text="{Binding ProductSearchText}" />
+                    <Picker ItemsSource="{Binding FilteredProducts}"
+                            ItemDisplayBinding="{Binding Name}"
+                            SelectedItem="{Binding SelectedProduct}" />
+                    <Button Text="Agregar producto"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding AddProductCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="White"
+                    StrokeThickness="0"
+                    Padding="14"
+                    StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Detalle del pedido"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+
+                    <CollectionView ItemsSource="{Binding OrderItems}"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="Agrega productos para comenzar."
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="#627D98"
+                                   Margin="0,18" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="#F4F7FB"
+                                        StrokeThickness="0"
+                                        Padding="12"
+                                        Margin="0,0,0,10"
+                                        StrokeShape="RoundRectangle 14">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout Spacing="2">
+                                                <Label Text="{Binding ProductName}"
+                                                       FontAttributes="Bold"
+                                                       FontSize="15" />
+                                                <Label Text="{Binding CategoryName}"
+                                                       FontSize="12"
+                                                       TextColor="#627D98" />
+                                            </VerticalStackLayout>
+                                            <Button Grid.Column="1"
+                                                    Text="Quitar"
+                                                    FontSize="12"
+                                                    Command="{Binding RemoveCommand}"
+                                                    Style="{StaticResource SecondaryButton}" />
+                                        </Grid>
+
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                            <Label Text="Cantidad" VerticalOptions="Center" />
+                                            <Stepper Grid.Column="1"
+                                                     Minimum="1"
+                                                     Maximum="999"
+                                                     Increment="1"
+                                                     Value="{Binding Quantity}" />
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding Quantity}"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+
+                                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                            <Label Text="{Binding SubtotalText, StringFormat='Subtotal: {0}'}" FontSize="12" />
+                                            <Label Grid.Column="1" Text="{Binding DiscountText, StringFormat='Desc: {0}'}" FontSize="12" />
+                                            <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding TotalText, StringFormat='Total: {0}'}" FontAttributes="Bold" TextColor="#0B6E4F" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="White"
+                    StrokeThickness="0"
+                    Padding="14"
+                    StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Seguimiento"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Estatus" FontSize="12" TextColor="#627D98" />
+                            <Picker ItemsSource="{Binding OrderStatuses}"
+                                    ItemDisplayBinding="{Binding DisplayName}"
+                                    SelectedItem="{Binding SelectedOrderStatus}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Pago" FontSize="12" TextColor="#627D98" />
+                            <Picker ItemsSource="{Binding PaymentStatuses}"
+                                    ItemDisplayBinding="{Binding DisplayName}"
+                                    SelectedItem="{Binding SelectedPaymentStatus}"
+                                    IsEnabled="{Binding IsRegularCustomerOrder}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Método de pago" FontSize="12" TextColor="#627D98" />
+                    <Picker ItemsSource="{Binding PaymentMethods}"
+                            ItemDisplayBinding="{Binding Label}"
+                            SelectedItem="{Binding SelectedPaymentMethod}"
+                            IsEnabled="{Binding IsRegularCustomerOrder}" />
+
+                    <Label Text="Comentarios internos" FontSize="12" TextColor="#627D98" />
+                    <Editor Text="{Binding Comments}"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="80"
+                            BackgroundColor="#F4F7FB" />
+
+                    <Label Text="Descuentos"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding Discounts}"
+                                    SelectionMode="None"
+                                    IsEnabled="{Binding IsRegularCustomerOrder}"
+                                    MaximumHeightRequest="220">
+                        <CollectionView.EmptyView>
+                            <Label Text="Sin descuentos configurados."
+                                   TextColor="#627D98" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*" Padding="0,6" ColumnSpacing="8">
+                                    <CheckBox IsChecked="{Binding IsSelected}" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Name}"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#E8F5EF"
+                    StrokeThickness="0"
+                    Padding="14"
+                    StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Piezas" />
+                        <Label Grid.Column="1" Text="{Binding TotalPiecesText}" FontAttributes="Bold" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Subtotal" />
+                        <Label Grid.Column="1" Text="{Binding SubtotalText}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Descuento" />
+                        <Label Grid.Column="1" Text="{Binding DiscountAmountText}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Total" FontSize="18" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="{Binding TotalText}" FontSize="18" FontAttributes="Bold" TextColor="#0B6E4F" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="{Binding SaveButtonText}"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SaveCommand}" />
+            <Button Text="Regresar"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding CancelCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
